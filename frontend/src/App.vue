@@ -32,6 +32,7 @@ const onSubmit = async () => {
 
 onMounted(() => {
   (window.adsbygoogle = window.adsbygoogle || []).push({});
+  (window.adsbygoogle = window.adsbygoogle || []).push({});
 });
 </script>
 
