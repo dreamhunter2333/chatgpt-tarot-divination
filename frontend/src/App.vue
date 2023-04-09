@@ -64,7 +64,7 @@ onMounted(() => {
     </n-gi>
     <n-gi>
       <div class="side">
-        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8486711392183862" data-ad-slot="9515796661"
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8486711392183862" data-ad-slot="3072024858"
           data-ad-format="auto" data-full-width-responsive="true"></ins>
       </div>
     </n-gi>
