@@ -1,21 +1,25 @@
 <script setup>
-import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NCode } from 'naive-ui'
+import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NCode, NTabs, NTabPane, NDatePicker } from 'naive-ui'
 import { onMounted, ref } from "vue";
 
 const prompt = ref("");
 const result = ref("");
+const prompt_type = ref("tarot");
+const birthday = ref("1926-08-17");
 const loading = ref(false);
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 const onSubmit = async () => {
   try {
     loading.value = true;
-    let urlencoded = new URLSearchParams();
-    urlencoded.append("prompt", prompt.value || "我的财务状况如何");
-    const response = await fetch(`${API_BASE}/chatgpt`, {
+    const response = await fetch(`${API_BASE}/api/divination`, {
       method: "POST",
-      body: urlencoded,
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: JSON.stringify({
+        prompt: prompt.value || "我的财务状况如何",
+        prompt_type: prompt_type.value,
+        birthday: birthday.value,
+      }),
+      headers: { "Content-Type": "application/json" },
     });
 
     if (!response.ok) {
@@ -48,9 +52,17 @@ onMounted(() => {
       <n-spin :show="loading">
         <div class="main">
           <n-space vertical>
-            <h1>AI 塔罗牌占卜</h1>
-            <n-input v-model:value="prompt" type="textarea" maxlength="100" :autosize="{ minRows: 3 }"
-              placeholder="我的财务状况如何" />
+            <h1>AI 占卜</h1>
+            <h4>本项目仅供娱乐</h4>
+            <n-tabs v-model:value="prompt_type" type="segment" animated>
+              <n-tab-pane name="tarot" tab="塔罗牌">
+                <n-input v-model:value="prompt" type="textarea" maxlength="100" :autosize="{ minRows: 3 }"
+                  placeholder="我的财务状况如何" />
+              </n-tab-pane>
+              <n-tab-pane name="birthday" tab="生辰八字">
+                <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd" type="date" />
+              </n-tab-pane>
+            </n-tabs>
             <div class="button-container">
               <n-button class="center" @click="onSubmit" tertiary round type="primary">
                 占卜
