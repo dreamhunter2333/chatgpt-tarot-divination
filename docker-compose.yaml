@@ -1,6 +1,3 @@
-# chatgpt tarot divination
-
-```yaml
 services:
   chatgpt-tarot-divination:
     image: ghcr.io/dreamhunter2333/chatgpt-tarot-divination:v0.0.7
@@ -13,4 +10,3 @@ services:
       - api_base=https://api.openai.com/v1 # optional
       - model=gpt-3.5-turbo # optional
       - rate_limit=10/minute # optional
-```
