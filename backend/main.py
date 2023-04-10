@@ -21,8 +21,25 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+
+def get_real_ipaddr(request: Request) -> str:
+    """
+    Returns the ip address for the current request (or 127.0.0.1 if none found)
+     based on the X-Forwarded-For headers.
+     Note that a more robust method for determining IP address of the client is
+     provided by uvicorn's ProxyHeadersMiddleware.
+    """
+    if "x-real-ip" in request.headers:
+        return request.headers["x-real-ip"]
+    else:
+        if not request.client or not request.client.host:
+            return "127.0.0.1"
+
+        return request.client.host
+
+
 app = FastAPI(title="Chatgpt Tarot Divination API")
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(key_func=get_real_ipaddr)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -38,8 +55,8 @@ app.add_middleware(
 )
 
 
-@ app.post("/chatgpt")
-@ limiter.limit(settings.rate_limit)
+@app.post("/chatgpt")
+@limiter.limit(settings.rate_limit)
 async def chatgpt(request: Request, prompt: str = Form()):
     if len(prompt) > 100:
         raise HTTPException(status_code=400, detail="Prompt too long")
@@ -57,7 +74,7 @@ async def chatgpt(request: Request, prompt: str = Form()):
 
 
 @app.get("/")
-async def read_index():
+async def read_index(request: Request):
     return FileResponse(
         "dist/index.html",
         headers={"Cache-Control": "no-cache"}
