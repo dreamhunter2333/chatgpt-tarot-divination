@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "markdown-it": "^13.0.1",
     "naive-ui": "^2.34.3",
     "vue": "^3.2.47"
   },

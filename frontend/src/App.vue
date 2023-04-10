@@ -1,6 +1,7 @@
 <script setup>
-import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NCode, NTabs, NTabPane, NDatePicker } from 'naive-ui'
+import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NTabs, NTabPane, NDatePicker } from 'naive-ui'
 import { onMounted, ref } from "vue";
+import MarkdownIt from 'markdown-it';
 
 const prompt = ref("");
 const result = ref("");
@@ -8,6 +9,7 @@ const prompt_type = ref("tarot");
 const birthday = ref("2023-08-17 00:00:00");
 const loading = ref(false);
 const API_BASE = import.meta.env.VITE_API_BASE || "";
+const md = new MarkdownIt();
 
 const onSubmit = async () => {
   try {
@@ -25,7 +27,8 @@ const onSubmit = async () => {
     if (!response.ok) {
       throw new Error(JSON.stringify(response));
     }
-    result.value = await response.json();
+    let res = await response.json();
+    result.value = md.render(res);
   } catch (error) {
     console.error(error);
     result.value = error.message || "占卜失败";
@@ -69,7 +72,7 @@ onMounted(() => {
               </n-button>
             </div>
             <n-card title="占卜结果">
-              <n-code :code="result" language="markdown" word-wrap />
+              <div class="result" v-html="result"></div>
             </n-card>
           </n-space>
         </div>
@@ -121,7 +124,7 @@ onMounted(() => {
   margin-bottom: 12px;
 }
 
-.n-code {
+.result {
   text-align: left;
 }
 </style>
