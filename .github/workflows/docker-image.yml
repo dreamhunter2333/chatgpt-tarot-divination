@@ -4,11 +4,16 @@ on:
   push:
     tags:
     - '*'
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-
-  build:
+  build-and-push-image:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Get version
         id: get_version
@@ -45,8 +50,16 @@ jobs:
       - name: Build Fronted
         run: cd frontend && pnpm install && pnpm build
 
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push Docker images
         uses: docker/build-push-action@v4.0.0
         with:
+          context: .
           push: true
           tags: ghcr.io/dreamhunter2333/chatgpt-tarot-divination:${{ steps.get_version.outputs.VERSION }}
