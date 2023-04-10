@@ -42,7 +42,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "*",
+        "http://localhost:5173",
         "http://localhost",
         "http://127.0.0.1"
     ],
@@ -68,9 +68,9 @@ async def chatgpt(request: Request, divination_body: DivinationBofy):
         raise HTTPException(status_code=400, detail="Prompt too long")
     if divination_body.prompt_type == "birthday":
         birthday = datetime.datetime.strptime(
-            divination_body.birthday, '%Y-%m-%d'
+            divination_body.birthday, '%Y-%m-%d %H:%M:%S'
         )
-        divination_body.prompt = f"我的生日是{birthday.year}年{birthday.month}月{birthday.day}日"
+        divination_body.prompt = f"我的生日是{birthday.year}年{birthday.month}月{birthday.day}日{birthday.hour}时{birthday.minute}分{birthday.second}秒"
     response = openai.ChatCompletion.create(
         model=settings.model,
         max_tokens=1000,

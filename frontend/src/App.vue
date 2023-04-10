@@ -5,7 +5,7 @@ import { onMounted, ref } from "vue";
 const prompt = ref("");
 const result = ref("");
 const prompt_type = ref("tarot");
-const birthday = ref("1926-08-17");
+const birthday = ref("2023-08-17 00:00:00");
 const loading = ref(false);
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 
@@ -60,7 +60,7 @@ onMounted(() => {
                   placeholder="我的财务状况如何" />
               </n-tab-pane>
               <n-tab-pane name="birthday" tab="生辰八字">
-                <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd" type="date" />
+                <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" />
               </n-tab-pane>
             </n-tabs>
             <div class="button-container">
