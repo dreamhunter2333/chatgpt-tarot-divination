@@ -1,0 +1,26 @@
+name: Docker Image CI
+
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - uses: actions/checkout@v3
+
+      - name: Build Fronted
+        run: cd fronted && pnpm install && pnpm build
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v4.0.0
+        with:
+          push: true
+          tags: ghcr.io/dreamhunter2333/chatgpt-tarot-divination:${{ steps.get_version.outputs.VERSION }}
