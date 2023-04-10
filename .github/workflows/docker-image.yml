@@ -47,7 +47,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: Build Fronted
+      - name: Build Frontend
         run: cd frontend && pnpm install && pnpm build
 
       - name: Log in to the Container registry
