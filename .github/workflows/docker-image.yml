@@ -62,4 +62,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/dreamhunter2333/chatgpt-tarot-divination:${{ steps.get_version.outputs.VERSION }}
+          tags: |
+            ghcr.io/dreamhunter2333/chatgpt-tarot-divination:${{ steps.get_version.outputs.VERSION }}
+            ghcr.io/dreamhunter2333/chatgpt-tarot-divination:latest
