@@ -59,11 +59,14 @@ onMounted(() => {
             <h4>本项目仅供娱乐</h4>
             <n-tabs v-model:value="prompt_type" type="segment" animated>
               <n-tab-pane name="tarot" tab="塔罗牌">
-                <n-input v-model:value="prompt" type="textarea" maxlength="100" :autosize="{ minRows: 3 }"
+                <n-input v-model:value="prompt" type="textarea" round maxlength="100" :autosize="{ minRows: 3 }"
                   placeholder="我的财务状况如何" />
               </n-tab-pane>
               <n-tab-pane name="birthday" tab="生辰八字">
                 <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" />
+              </n-tab-pane>
+              <n-tab-pane name="name" tab="姓名五格">
+                <n-input v-model:value="prompt" type="text" maxlength="10" round placeholder="请输入姓名" />
               </n-tab-pane>
             </n-tabs>
             <div class="button-container">

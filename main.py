@@ -66,7 +66,11 @@ async def chatgpt(request: Request, divination_body: DivinationBofy):
     )
     if divination_body.prompt_type == "tarot" and len(divination_body.prompt) > 100:
         raise HTTPException(status_code=400, detail="Prompt too long")
-    if divination_body.prompt_type == "birthday":
+    elif divination_body.prompt_type == "name" and (len(divination_body.prompt) > 10 or len(divination_body.prompt) < 1):
+        raise HTTPException(status_code=400, detail="姓名长度错误")
+    elif divination_body.prompt_type == "name":
+        divination_body.prompt = f"我的名字是{divination_body.prompt}"
+    elif divination_body.prompt_type == "birthday":
         birthday = datetime.datetime.strptime(
             divination_body.birthday, '%Y-%m-%d %H:%M:%S'
         )
