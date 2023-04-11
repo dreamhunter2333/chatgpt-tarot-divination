@@ -33,20 +33,6 @@ jobs:
           version: 7
           run_install: false
 
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
       - name: Build Frontend
         run: cd frontend && pnpm install && pnpm build
 
@@ -57,9 +43,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
       - name: Build and push Docker images
         uses: docker/build-push-action@v4
         with:
@@ -68,5 +51,3 @@ jobs:
           tags: |
             ghcr.io/dreamhunter2333/chatgpt-tarot-divination:${{ steps.get_version.outputs.VERSION }}
             ghcr.io/dreamhunter2333/chatgpt-tarot-divination:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
