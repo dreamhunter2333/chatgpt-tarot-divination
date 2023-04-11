@@ -75,14 +75,6 @@ onMounted(() => {
                   placeholder="我的财务状况如何" />
               </n-tab-pane>
               <n-tab-pane name="birthday" tab="生辰八字">
-                <n-switch>
-                  <template #checked>
-                    农历
-                  </template>
-                  <template #unchecked>
-                    公历
-                  </template>
-                </n-switch>
                 <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" />
                 <p>农历: {{ lunarBirthday }}</p>
               </n-tab-pane>
