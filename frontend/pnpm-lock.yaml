@@ -4,12 +4,6 @@ dependencies:
   markdown-it:
     specifier: ^13.0.1
     version: 13.0.1
-  moment:
-    specifier: ^2.29.4
-    version: 2.29.4
-  moment-lunar:
-    specifier: ^0.0.4
-    version: 0.0.4
   naive-ui:
     specifier: ^2.34.3
     version: 2.34.3(vue@3.2.47)
@@ -509,16 +503,6 @@ packages:
 
   /mdurl@1.0.1:
     resolution: {integrity: sha512-/sKlQJCBYVY9Ers9hqzKou4H6V5UWc/M59TH2dvkt+84itfnq7uFOMLpOiOS4ujvHP4etln18fmIxA5R5fll0g==}
-    dev: false
-
-  /moment-lunar@0.0.4:
-    resolution: {integrity: sha512-8+20OOe4+4qpW6E74TqNYLW1Ri8C1BvJjrwsv5tm49SfQzh+b6YcPPn25xXb3JHIhYVAEwc5hvu0B7X8VdQukw==}
-    dependencies:
-      moment: 2.29.4
-    dev: false
-
-  /moment@2.29.4:
-    resolution: {integrity: sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==}
     dev: false
 
   /naive-ui@2.34.3(vue@3.2.47):
