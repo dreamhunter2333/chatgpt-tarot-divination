@@ -1,12 +1,13 @@
 <script setup>
-import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NTabs, NTabPane, NDatePicker } from 'naive-ui'
-import { onMounted, ref } from "vue";
+import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NTabs, NTabPane, NDatePicker, NSwitch } from 'naive-ui'
+import { watch, onMounted, ref } from "vue";
 import MarkdownIt from 'markdown-it';
 
 const prompt = ref("");
 const result = ref("");
 const prompt_type = ref("tarot");
-const birthday = ref("2023-08-17 00:00:00");
+const lunarBirthday = ref('2000年7月18日')
+const birthday = ref("2000-08-17 00:00:00");
 const loading = ref(false);
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 const md = new MarkdownIt();
@@ -37,6 +38,17 @@ const onSubmit = async () => {
   }
 };
 
+watch(birthday, async (newBirthday, oldBirthday) => {
+  lunarBirthday.value = '转换中...'
+  try {
+    const res = await fetch(`${API_BASE}/api/date?date=${newBirthday}`)
+    lunarBirthday.value = await res.json()
+  } catch (error) {
+    console.error(error)
+  }
+})
+
+
 onMounted(() => {
   (window.adsbygoogle = window.adsbygoogle || []).push({});
   (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -64,6 +76,7 @@ onMounted(() => {
               </n-tab-pane>
               <n-tab-pane name="birthday" tab="生辰八字">
                 <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" />
+                <p>农历: {{ lunarBirthday }}</p>
               </n-tab-pane>
               <n-tab-pane name="name" tab="姓名五格">
                 <n-input v-model:value="prompt" type="text" maxlength="10" round placeholder="请输入姓名" />
@@ -122,6 +135,12 @@ onMounted(() => {
 }
 
 .n-button {
+  margin-top: 12px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.n-switch {
   margin-top: 12px;
   text-align: center;
   margin-bottom: 12px;
