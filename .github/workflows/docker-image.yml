@@ -65,3 +65,5 @@ jobs:
           tags: |
             ghcr.io/dreamhunter2333/chatgpt-tarot-divination:${{ steps.get_version.outputs.VERSION }}
             ghcr.io/dreamhunter2333/chatgpt-tarot-divination:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
