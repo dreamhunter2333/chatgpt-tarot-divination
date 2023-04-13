@@ -121,9 +121,9 @@ async def change_date(request: Request, date: str, is_lunar: bool = False):
         Gan[yTG.tg],
         Zhi[yTG.dz],
         '闰' if lunar_date.isLunarLeap() else '',
-        ymc[lunar_date.getLunarMonth()],
-        rmc[lunar_date.getLunarDay()],
-        XiZ[lunar_date.getConstellation()]
+        ymc[lunar_date.getLunarMonth() - 1],
+        rmc[lunar_date.getLunarDay() - 1],
+        XiZ[lunar_date.getConstellation() - 1]
     )
 
 

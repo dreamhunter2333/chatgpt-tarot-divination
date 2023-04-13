@@ -6,7 +6,7 @@ import MarkdownIt from 'markdown-it';
 const prompt = ref("");
 const result = ref("");
 const prompt_type = ref("tarot");
-const lunarBirthday = ref('龙年 庚辰年 八月十九 狮子座')
+const lunarBirthday = ref('农历: 龙年 庚辰年 七月十八 巨蟹座')
 const birthday = ref("2000-08-17 00:00:00");
 const loading = ref(false);
 const API_BASE = import.meta.env.VITE_API_BASE || "";
