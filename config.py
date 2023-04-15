@@ -20,10 +20,15 @@ NAME_PROMPT = "我请求你担任中国传统的姓名五格算命师的角色�
     "分析姓氏格、名字格、和自己格。" \
     "并为其提供相应的指导和建议。"
 
+DREAM_PROMPT = "我请求你担任中国传统的周公解梦师的角色。" \
+    "我将会给你我的梦境，请你解释我的梦境，" \
+    "并为其提供相应的指导和建议。"
+
 PROMPT_MAP = {
     "tarot": TAROT_PROMPT,
     "birthday": BIRTHDAY_PROMPT,
     "name": NAME_PROMPT,
+    "dream": DREAM_PROMPT,
 }
 
 

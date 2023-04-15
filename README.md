@@ -1,5 +1,7 @@
 # chatgpt tarot divination
 
+![demo](assets/demo.png)
+
 ```yaml
 services:
   chatgpt-tarot-divination:

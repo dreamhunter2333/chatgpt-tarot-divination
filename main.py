@@ -33,6 +33,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 _logger = logging.getLogger(__name__)
+STOP_WORDS = ["忽略", "ignore"]
 
 
 def get_real_ipaddr(request: Request) -> str:
@@ -75,7 +76,12 @@ async def chatgpt(request: Request, divination_body: DivinationBofy):
     _logger.info(
         f"Request from {get_real_ipaddr(request)}, prompt_type={divination_body.prompt_type}, prompt={divination_body.prompt}"
     )
-    if divination_body.prompt_type == "tarot" and len(divination_body.prompt) > 100:
+    if any(w in divination_body.prompt for w in STOP_WORDS):
+        raise HTTPException(
+            status_code=403,
+            detail="Prompt contains stop words"
+        )
+    if divination_body.prompt_type in ("tarot", "dream") and len(divination_body.prompt) > 40:
         raise HTTPException(status_code=400, detail="Prompt too long")
     elif divination_body.prompt_type == "name" and (len(divination_body.prompt) > 10 or len(divination_body.prompt) < 1):
         raise HTTPException(status_code=400, detail="姓名长度错误")
@@ -86,17 +92,19 @@ async def chatgpt(request: Request, divination_body: DivinationBofy):
             divination_body.birthday, '%Y-%m-%d %H:%M:%S'
         )
         divination_body.prompt = f"我的生日是{birthday.year}年{birthday.month}月{birthday.day}日{birthday.hour}时{birthday.minute}分{birthday.second}秒"
+    if divination_body.prompt_type == "dream":
+        divination_body.prompt = f"我的梦境是: {divination_body.prompt}"
     response = openai.ChatCompletion.create(
         model=settings.model,
         max_tokens=1000,
         temperature=0.9,
         top_p=1,
         messages=[
+            {"role": "user", "content": divination_body.prompt},
             {
                 "role": "system",
                 "content": PROMPT_MAP[divination_body.prompt_type]
             },
-            {"role": "user", "content": divination_body.prompt},
         ]
     )
     return response['choices'][0]['message']['content']

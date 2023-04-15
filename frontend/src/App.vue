@@ -26,7 +26,7 @@ const onSubmit = async () => {
     });
 
     if (!response.ok) {
-      throw new Error(JSON.stringify(response));
+      throw new Error(`${response.status} ${response.statusText}` || "占卜失败");
     }
     let res = await response.json();
     result.value = md.render(res);
@@ -71,7 +71,7 @@ onMounted(() => {
             <h4>本项目仅供娱乐</h4>
             <n-tabs v-model:value="prompt_type" type="segment" animated>
               <n-tab-pane name="tarot" tab="塔罗牌">
-                <n-input v-model:value="prompt" type="textarea" round maxlength="100" :autosize="{ minRows: 3 }"
+                <n-input v-model:value="prompt" type="textarea" round maxlength="40" :autosize="{ minRows: 3 }"
                   placeholder="我的财务状况如何" />
               </n-tab-pane>
               <n-tab-pane name="birthday" tab="生辰八字">
@@ -80,6 +80,10 @@ onMounted(() => {
               </n-tab-pane>
               <n-tab-pane name="name" tab="姓名五格">
                 <n-input v-model:value="prompt" type="text" maxlength="10" round placeholder="请输入姓名" />
+              </n-tab-pane>
+              <n-tab-pane name="dream" tab="周公解梦">
+                <n-input v-model:value="prompt" type="textarea" round maxlength="40" :autosize="{ minRows: 3 }"
+                  placeholder="请输入你的梦境" />
               </n-tab-pane>
             </n-tabs>
             <div class="button-container">
