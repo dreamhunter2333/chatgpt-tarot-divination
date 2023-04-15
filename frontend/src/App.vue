@@ -26,7 +26,7 @@ const onSubmit = async () => {
     });
 
     if (!response.ok) {
-      throw new Error(`${response.status} ${response.statusText}` || "占卜失败");
+      throw new Error(`${response.status} ${await response.text()}` || "占卜失败");
     }
     let res = await response.json();
     result.value = md.render(res);
