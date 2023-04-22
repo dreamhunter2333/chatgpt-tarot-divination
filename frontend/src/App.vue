@@ -1,5 +1,5 @@
 <script setup>
-import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NTabs, NTabPane, NDatePicker, NSwitch } from 'naive-ui'
+import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NTabs, NTabPane, NDatePicker, NSelect, NFormItem } from 'naive-ui'
 import { watch, onMounted, ref } from "vue";
 import MarkdownIt from 'markdown-it';
 
@@ -11,6 +11,13 @@ const birthday = ref("2000-08-17 00:00:00");
 const loading = ref(false);
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 const md = new MarkdownIt();
+const sex = ref("")
+const surname = ref("")
+const new_name_prompt = ref("")
+const sexOptions = [
+  { label: "男", value: "男" },
+  { label: "女", value: "女" },
+]
 
 const onSubmit = async () => {
   try {
@@ -21,6 +28,12 @@ const onSubmit = async () => {
         prompt: prompt.value || "我的财务状况如何",
         prompt_type: prompt_type.value,
         birthday: birthday.value,
+        new_name: {
+          surname: surname.value,
+          sex: sex.value,
+          birthday: birthday.value,
+          new_name_prompt: new_name_prompt.value
+        }
       }),
       headers: { "Content-Type": "application/json" },
     });
@@ -75,8 +88,31 @@ onMounted(() => {
                   placeholder="我的财务状况如何" />
               </n-tab-pane>
               <n-tab-pane name="birthday" tab="生辰八字">
-                <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" />
-                <p>农历: {{ lunarBirthday }}</p>
+                <div style="display: inline-block;">
+                  <n-form-item label="生日" label-placement="left">
+                    <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss"
+                      type="datetime" />
+                  </n-form-item>
+                  <p>农历: {{ lunarBirthday }}</p>
+                </div>
+              </n-tab-pane>
+              <n-tab-pane name="new_name" tab="起名">
+                <div style="display: inline-block;">
+                  <n-form-item label="姓氏" label-placement="left">
+                    <n-input v-model:value="surname" type="text" maxlength="2" placeholder="请输入姓氏" />
+                  </n-form-item>
+                  <n-form-item label="性别" label-placement="left">
+                    <n-select v-model:value="sex" :options="sexOptions" />
+                  </n-form-item>
+                  <n-form-item label="生日" label-placement="left">
+                    <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss"
+                      type="datetime" />
+                  </n-form-item>
+                  <n-form-item label="附加" label-placement="left">
+                    <n-input v-model:value="new_name_prompt" type="text" maxlength="20" placeholder="" />
+                  </n-form-item>
+                  <p>农历: {{ lunarBirthday }}</p>
+                </div>
               </n-tab-pane>
               <n-tab-pane name="name" tab="姓名五格">
                 <n-input v-model:value="prompt" type="text" maxlength="10" round placeholder="请输入姓名" />
@@ -129,22 +165,12 @@ onMounted(() => {
   height: 100%;
 }
 
-.n-input {
-  margin-top: 12px;
-}
-
 .button-container {
   display: flex;
   justify-content: center;
 }
 
 .n-button {
-  margin-top: 12px;
-  text-align: center;
-  margin-bottom: 12px;
-}
-
-.n-switch {
   margin-top: 12px;
   text-align: center;
   margin-bottom: 12px;
