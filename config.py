@@ -24,11 +24,20 @@ DREAM_PROMPT = "我请求你担任中国传统的周公解梦师的角色。" \
     "我将会给你我的梦境，请你解释我的梦境，" \
     "并为其提供相应的指导和建议。"
 
+NEW_NAME_PROMPT = (
+    "我请求你担任起名师的角色，"
+    "我将会给你我的姓氏、生日、性别等，"
+    "请返回你认为最适合我的名字，"
+    "请注意姓氏在前，名字在后。"
+)
+
+
 PROMPT_MAP = {
     "tarot": TAROT_PROMPT,
     "birthday": BIRTHDAY_PROMPT,
     "name": NAME_PROMPT,
     "dream": DREAM_PROMPT,
+    "new_name": NEW_NAME_PROMPT,
 }
 
 

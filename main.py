@@ -68,15 +68,23 @@ app.add_middleware(
 )
 
 
-class DivinationBofy(BaseModel):
+class NewName(BaseModel):
+    surname: str
+    sex: str
+    birthday: str
+    new_name_prompt: str
+
+
+class DivinationBody(BaseModel):
     prompt: str
     prompt_type: str
     birthday: str
+    new_name: NewName = None
 
 
 @app.post("/api/divination")
 @limiter.limit(settings.rate_limit)
-async def chatgpt(request: Request, divination_body: DivinationBofy):
+async def chatgpt(request: Request, divination_body: DivinationBody):
     _logger.info(
         f"Request from {get_real_ipaddr(request)}, prompt_type={divination_body.prompt_type}, prompt={divination_body.prompt}"
     )
@@ -96,8 +104,27 @@ async def chatgpt(request: Request, divination_body: DivinationBofy):
             divination_body.birthday, '%Y-%m-%d %H:%M:%S'
         )
         divination_body.prompt = f"我的生日是{birthday.year}年{birthday.month}月{birthday.day}日{birthday.hour}时{birthday.minute}分{birthday.second}秒"
+    elif divination_body.prompt_type == "new_name" and (
+            not divination_body.new_name or not all([
+                divination_body.new_name.surname,
+                divination_body.new_name.birthday,
+                divination_body.new_name.sex,
+            ]) or len(divination_body.new_name.new_name_prompt) > 20):
+        raise HTTPException(status_code=400, detail="起名参数错误")
+
     if divination_body.prompt_type == "dream":
         divination_body.prompt = f"我的梦境是: {divination_body.prompt}"
+    elif divination_body.prompt_type == "new_name":
+        birthday = datetime.datetime.strptime(
+            divination_body.birthday, '%Y-%m-%d %H:%M:%S'
+        )
+        divination_body.prompt = (
+            f"姓氏是{divination_body.new_name.surname},"
+            f"生日是{birthday.year}年{birthday.month}月{birthday.day}日{birthday.hour}时{birthday.minute}分{birthday.second}秒"
+        )
+        if divination_body.new_name.new_name_prompt:
+            divination_body.prompt += f",我的要求是: {divination_body.new_name.new_name_prompt}"
+
     response = openai.ChatCompletion.create(
         model=settings.model,
         max_tokens=1000,
