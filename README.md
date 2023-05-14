@@ -1,5 +1,19 @@
 # chatgpt tarot divination
 
+- [chatgpt tarot divination](#chatgpt-tarot-divination)
+  - [AI 算命，占卜 功能](#ai-算命占卜-功能)
+  - [Deploy by docker](#deploy-by-docker)
+  - [Local Run](#local-run)
+
+## AI 算命，占卜 功能
+
+- [x] 塔罗牌
+- [x] 生辰八字
+- [x] 姓名五格
+- [x] 周公解梦
+- [x] 起名
+- [x] 梅花易数
+
 ![demo](assets/demo.png)
 
 ## Deploy by docker

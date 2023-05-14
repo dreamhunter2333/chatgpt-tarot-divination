@@ -4,7 +4,7 @@ from .base import DivinationFactory
 
 SYS_PROMPT = "我请求你担任中国传统的梅花易数占卜师的角色。" \
     "我会随意说出两个数，第一个数取为上卦，第二个数取为下卦。" \
-    "请你直接以数起卦"
+    "请你直接以数起卦, 并向我解释结果"
 
 
 class PlumFlowerFactory(DivinationFactory):
