@@ -1,5 +1,5 @@
 <script setup>
-import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NTabs, NTabPane, NDatePicker, NSelect, NFormItem } from 'naive-ui'
+import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NTabs, NTabPane, NDatePicker, NSelect, NFormItem, NInputNumber } from 'naive-ui'
 import { watch, onMounted, ref } from "vue";
 import MarkdownIt from 'markdown-it';
 
@@ -18,6 +18,7 @@ const sexOptions = [
   { label: "男", value: "男" },
   { label: "女", value: "女" },
 ]
+const plum_flower = ref({ num1: 0, num2: 0 })
 
 const onSubmit = async () => {
   try {
@@ -33,7 +34,8 @@ const onSubmit = async () => {
           sex: sex.value,
           birthday: birthday.value,
           new_name_prompt: new_name_prompt.value
-        }
+        },
+        plum_flower: prompt_type.value == "plum_flower" ? plum_flower.value : null,
       }),
       headers: { "Content-Type": "application/json" },
     });
@@ -120,6 +122,17 @@ onMounted(() => {
               <n-tab-pane name="dream" tab="周公解梦">
                 <n-input v-model:value="prompt" type="textarea" round maxlength="40" :autosize="{ minRows: 3 }"
                   placeholder="请输入你的梦境" />
+              </n-tab-pane>
+              <n-tab-pane name="plum_flower" tab="梅花易数">
+                <div style="display: inline-block;">
+                  <h4>请随机输入两个 0-1000 的数字</h4>
+                  <n-form-item label="数字一" label-placement="left">
+                    <n-input-number v-model:value="plum_flower.num1" :min="0" :max="1000" />
+                  </n-form-item>
+                  <n-form-item label="数字二" label-placement="left">
+                    <n-input-number v-model:value="plum_flower.num2" :min="0" :max="1000" />
+                  </n-form-item>
+                </div>
               </n-tab-pane>
             </n-tabs>
             <div class="button-container">
