@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     api_base: str = "https://api.openai.com/v1"
     model: str = "gpt-3.5-turbo"
     rate_limit: str = "10/minute"
+    log_dir: str = ""
 
     class Config:
         env_file = ".env"
