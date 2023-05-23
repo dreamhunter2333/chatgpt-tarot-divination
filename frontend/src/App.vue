@@ -1,16 +1,20 @@
 <script setup>
-import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NTabs, NTabPane, NDatePicker, NSelect, NFormItem, NInputNumber } from 'naive-ui'
+import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NDatePicker, NSelect, NFormItem, NInputNumber, NLayout, NMenu, NTabs, NTabPane } from 'naive-ui'
 import { watch, onMounted, ref } from "vue";
 import MarkdownIt from 'markdown-it';
+import { DIVINATION_OPTIONS, ABOUT } from "./constants"
+
 
 const prompt = ref("");
 const result = ref("");
 const prompt_type = ref("tarot");
+const menu_type = ref("divination");
 const lunarBirthday = ref('龙年 庚辰年 七月十八 巨蟹座')
 const birthday = ref("2000-08-17 00:00:00");
 const loading = ref(false);
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 const md = new MarkdownIt();
+const about = md.render(ABOUT);
 const sex = ref("")
 const surname = ref("")
 const new_name_prompt = ref("")
@@ -82,67 +86,85 @@ onMounted(() => {
       <n-spin :show="loading">
         <div class="main">
           <n-space vertical>
-            <h1>AI 占卜</h1>
-            <h4>本项目仅供娱乐</h4>
-            <n-tabs v-model:value="prompt_type" type="segment" animated>
-              <n-tab-pane name="tarot" tab="塔罗牌">
-                <n-input v-model:value="prompt" type="textarea" round maxlength="40" :autosize="{ minRows: 3 }"
-                  placeholder="我的财务状况如何" />
-              </n-tab-pane>
-              <n-tab-pane name="birthday" tab="生辰八字">
-                <div style="display: inline-block;">
-                  <n-form-item label="生日" label-placement="left">
-                    <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss"
-                      type="datetime" />
-                  </n-form-item>
-                  <p>农历: {{ lunarBirthday }}</p>
+            <h2>AI 占卜 - 本项目仅供娱乐</h2>
+            <n-layout>
+              <n-layout>
+                <n-tabs v-model:value="menu_type" type="segment" animated>
+                  <n-tab-pane name="divination" tab="占卜">
+                  </n-tab-pane>
+                  <n-tab-pane name="about" tab=" 关于">
+                  </n-tab-pane>
+                </n-tabs>
+                <div v-if="menu_type == 'divination'">
+                  <div style="display: inline-block;">
+                    <n-form-item label="占卜方式" label-placement="left">
+                      <n-select v-model:value="prompt_type" :consistent-menu-width="false" value-field="key"
+                        :options="DIVINATION_OPTIONS" />
+                    </n-form-item>
+                  </div>
+                  <div v-if="prompt_type == 'tarot'">
+                    <n-input v-model:value="prompt" type="textarea" round maxlength="40" :autosize="{ minRows: 3 }"
+                      placeholder="我的财务状况如何" />
+                  </div>
+                  <div v-if="prompt_type == 'birthday'">
+                    <div style="display: inline-block;">
+                      <n-form-item label="生日" label-placement="left">
+                        <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss"
+                          type="datetime" />
+                      </n-form-item>
+                      <p>农历: {{ lunarBirthday }}</p>
+                    </div>
+                  </div>
+                  <div v-if="prompt_type == 'new_name'">
+                    <div style="display: inline-block;">
+                      <n-form-item label="姓氏" label-placement="left">
+                        <n-input v-model:value="surname" type="text" maxlength="2" placeholder="请输入姓氏" />
+                      </n-form-item>
+                      <n-form-item label="性别" label-placement="left">
+                        <n-select v-model:value="sex" :options="sexOptions" />
+                      </n-form-item>
+                      <n-form-item label="生日" label-placement="left">
+                        <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss"
+                          type="datetime" />
+                      </n-form-item>
+                      <n-form-item label="附加" label-placement="left">
+                        <n-input v-model:value="new_name_prompt" type="text" maxlength="20" placeholder="" />
+                      </n-form-item>
+                      <p>农历: {{ lunarBirthday }}</p>
+                    </div>
+                  </div>
+                  <div v-if="prompt_type == 'name'">
+                    <div style="display: inline-block;">
+                      <n-input v-model:value="prompt" type="text" maxlength="10" round placeholder="请输入姓名" />
+                    </div>
+                  </div>
+                  <div v-if="prompt_type == 'dream'">
+                    <n-input v-model:value="prompt" type="textarea" round maxlength="40" :autosize="{ minRows: 3 }"
+                      placeholder="请输入你的梦境" />
+                  </div>
+                  <div v-if="prompt_type == 'plum_flower'">
+                    <div style="display: inline-block;">
+                      <h4>请随机输入两个 0-1000 的数字</h4>
+                      <n-form-item label="数字一" label-placement="left">
+                        <n-input-number v-model:value="plum_flower.num1" :min="0" :max="1000" />
+                      </n-form-item>
+                      <n-form-item label="数字二" label-placement="left">
+                        <n-input-number v-model:value="plum_flower.num2" :min="0" :max="1000" />
+                      </n-form-item>
+                    </div>
+                  </div>
+                  <div v-if="menu_type != 'about'" class="button-container">
+                    <n-button class="center" @click="onSubmit" tertiary round type="primary">
+                      占卜
+                    </n-button>
+                  </div>
                 </div>
-              </n-tab-pane>
-              <n-tab-pane name="new_name" tab="起名">
-                <div style="display: inline-block;">
-                  <n-form-item label="姓氏" label-placement="left">
-                    <n-input v-model:value="surname" type="text" maxlength="2" placeholder="请输入姓氏" />
-                  </n-form-item>
-                  <n-form-item label="性别" label-placement="left">
-                    <n-select v-model:value="sex" :options="sexOptions" />
-                  </n-form-item>
-                  <n-form-item label="生日" label-placement="left">
-                    <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss"
-                      type="datetime" />
-                  </n-form-item>
-                  <n-form-item label="附加" label-placement="left">
-                    <n-input v-model:value="new_name_prompt" type="text" maxlength="20" placeholder="" />
-                  </n-form-item>
-                  <p>农历: {{ lunarBirthday }}</p>
-                </div>
-              </n-tab-pane>
-              <n-tab-pane name="name" tab="姓名五格">
-                <n-input v-model:value="prompt" type="text" maxlength="10" round placeholder="请输入姓名" />
-              </n-tab-pane>
-              <n-tab-pane name="dream" tab="周公解梦">
-                <n-input v-model:value="prompt" type="textarea" round maxlength="40" :autosize="{ minRows: 3 }"
-                  placeholder="请输入你的梦境" />
-              </n-tab-pane>
-              <n-tab-pane name="plum_flower" tab="梅花易数">
-                <div style="display: inline-block;">
-                  <h4>请随机输入两个 0-1000 的数字</h4>
-                  <n-form-item label="数字一" label-placement="left">
-                    <n-input-number v-model:value="plum_flower.num1" :min="0" :max="1000" />
-                  </n-form-item>
-                  <n-form-item label="数字二" label-placement="left">
-                    <n-input-number v-model:value="plum_flower.num2" :min="0" :max="1000" />
-                  </n-form-item>
-                </div>
-              </n-tab-pane>
-            </n-tabs>
-            <div class="button-container">
-              <n-button class="center" @click="onSubmit" tertiary round type="primary">
-                占卜
-              </n-button>
-            </div>
-            <n-card title="占卜结果">
-              <div class="result" v-html="result"></div>
-            </n-card>
+                <n-card :title="menu_type == 'about' ? '' : '占卜结果'">
+                  <div v-if="menu_type != 'about'" class="result" v-html="result"></div>
+                  <div v-else class="result" v-html="about"></div>
+                </n-card>
+              </n-layout>
+            </n-layout>
           </n-space>
         </div>
       </n-spin>
