@@ -1,8 +1,8 @@
 <script setup>
-import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NDatePicker, NSelect, NFormItem, NInputNumber, NLayout, NMenu, NTabs, NTabPane } from 'naive-ui'
+import { NGrid, NGi, NInput, NButton, NSpace, NCard, NSpin, NDatePicker, NSelect, NFormItem, NInputNumber, NLayout, NMenu } from 'naive-ui'
 import { watch, onMounted, ref } from "vue";
 import MarkdownIt from 'markdown-it';
-import { DIVINATION_OPTIONS, ABOUT } from "./constants"
+import { MENU_OPTIONS, DIVINATION_OPTIONS, ABOUT } from "./constants"
 
 
 const prompt = ref("");
@@ -83,23 +83,18 @@ onMounted(() => {
       </div>
     </n-gi>
     <n-gi span="4">
-      <n-spin :show="loading">
+      <n-spin size="large" description="正在占卜..." :show="loading">
         <div class="main">
           <n-space vertical>
             <h2>AI 占卜 - 本项目仅供娱乐</h2>
             <n-layout>
               <n-layout>
-                <n-tabs v-model:value="menu_type" type="segment" animated>
-                  <n-tab-pane name="divination" tab="占卜">
-                  </n-tab-pane>
-                  <n-tab-pane name="about" tab=" 关于">
-                  </n-tab-pane>
-                </n-tabs>
-                <div v-if="menu_type == 'divination'">
+                <n-menu v-model:value="prompt_type" mode="horizontal" :options="MENU_OPTIONS" />
+                <n-card v-if="prompt_type != 'about'">
                   <div style="display: inline-block;">
-                    <n-form-item label="占卜方式" label-placement="left">
+                    <n-form-item label="当前占卜" label-placement="left">
                       <n-select v-model:value="prompt_type" :consistent-menu-width="false" value-field="key"
-                        :options="DIVINATION_OPTIONS" />
+                        :options="DIVINATION_OPTIONS" disabled />
                     </n-form-item>
                   </div>
                   <div v-if="prompt_type == 'tarot'">
@@ -158,9 +153,9 @@ onMounted(() => {
                       占卜
                     </n-button>
                   </div>
-                </div>
-                <n-card :title="menu_type == 'about' ? '' : '占卜结果'">
-                  <div v-if="menu_type != 'about'" class="result" v-html="result"></div>
+                </n-card>
+                <n-card :title="prompt_type == 'about' ? '' : '占卜结果'">
+                  <div v-if="prompt_type != 'about'" class="result" v-html="result"></div>
                   <div v-else class="result" v-html="about"></div>
                 </n-card>
               </n-layout>
