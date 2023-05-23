@@ -3,16 +3,18 @@ import openai
 import logging
 
 from datetime import datetime
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request, status
 
 
 from config import settings
 from fastapi import APIRouter
 
 from models import DivinationBody
+from router.user import get_user
 from .limiter import get_real_ipaddr, limiter
 from .divination import DivinationFactory
 from .file_logger import file_logger
+from models.db_models import User, DBSession
 
 openai.api_key = settings.api_key
 openai.api_base = settings.api_base
@@ -28,9 +30,36 @@ _logger.info(
 )
 
 
-@router.post("/api/divination")
 @limiter.limit(settings.rate_limit)
-async def chatgpt(request: Request, divination_body: DivinationBody):
+def limit_when_not_login(request: Request):
+    """
+    Limit when not login
+    """
+
+
+@router.post("/api/divination")
+async def divination(request: Request, divination_body: DivinationBody, user_name: str = Depends(get_user)):
+    if not user_name:
+        limit_when_not_login(request)
+        return chatgpt(request, divination_body)
+    with DBSession() as session:
+        user = session.query(User).filter(User.name == user_name).one_or_none()
+        if not user:
+            limit_when_not_login(request)
+            _logger.warning(f"User {user_name} not found")
+            return chatgpt(request, divination_body)
+        if user.usage >= user.limit:
+            _logger.warning(
+                f"User {user_name} usage {user.usage} exceeded limit {user.limit}")
+            limit_when_not_login(request)
+        res = chatgpt(request, divination_body)
+        user.usage += 1
+        session.commit()
+        return res
+
+
+def chatgpt(request: Request, divination_body: DivinationBody):
+    return "23333"
     _logger.info(
         f"Request from {get_real_ipaddr(request)}, body={divination_body.json(ensure_ascii=False)}"
     )

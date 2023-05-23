@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from pydantic import BaseSettings
 
@@ -14,6 +15,10 @@ class Settings(BaseSettings):
     model: str = "gpt-3.5-turbo"
     rate_limit: str = "10/minute"
     log_dir: str = ""
+    db_path: str = "divination.db"
+    default_limit: int = 1000
+    jwt_secret: str = "secret"
+    invite_reward: int = 1000
 
     class Config:
         env_file = ".env"

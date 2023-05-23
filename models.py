@@ -2,6 +2,11 @@ from typing import Optional
 from pydantic import BaseModel
 
 
+class JwtPayload(BaseModel):
+    user_name: str
+    expire_at: float
+
+
 class NewName(BaseModel):
     surname: str
     sex: str
