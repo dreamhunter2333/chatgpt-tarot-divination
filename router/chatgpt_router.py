@@ -43,7 +43,9 @@ async def divination(request: Request, divination_body: DivinationBody, user_nam
         limit_when_not_login(request)
         return chatgpt(request, divination_body)
     with DBSession() as session:
-        user = session.query(User).filter(User.name == user_name).one_or_none()
+        user = session.query(User).filter(
+            User.name == user_name
+        ).with_for_update().one_or_none()
         if not user:
             limit_when_not_login(request)
             _logger.warning(f"User {user_name} not found")
@@ -59,7 +61,6 @@ async def divination(request: Request, divination_body: DivinationBody, user_nam
 
 
 def chatgpt(request: Request, divination_body: DivinationBody):
-    return "23333"
     _logger.info(
         f"Request from {get_real_ipaddr(request)}, body={divination_body.json(ensure_ascii=False)}"
     )

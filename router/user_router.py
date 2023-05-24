@@ -16,7 +16,7 @@ router = APIRouter()
 _logger = logging.getLogger(__name__)
 
 
-@router.post("/api/register", tags=["User"])
+@router.post("/api/v1/register", tags=["User"])
 def register(name: str = Form(), password: str = Form(), invite_user_name: Optional[str] = None):
     with DBSession() as session:
         user = session.query(User).filter(
@@ -43,7 +43,7 @@ def register(name: str = Form(), password: str = Form(), invite_user_name: Optio
         return JSONResponse(status_code=status.HTTP_201_CREATED, content="User created")
 
 
-@router.post("/api/login", tags=["User"])
+@router.post("/api/v1/login", tags=["User"])
 def login(name: str = Form(), password: str = Form()):
     with DBSession() as session:
         user = session.query(User).filter(
