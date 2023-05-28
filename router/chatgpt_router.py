@@ -1,15 +1,17 @@
 import json
+from typing import Optional
 import openai
 import logging
 
 from datetime import datetime
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request, status
 
 
 from config import settings
 from fastapi import APIRouter
 
-from models import DivinationBody
+from models import DivinationBody, User
+from router.user import get_user
 from .limiter import get_real_ipaddr, limiter
 from .divination import DivinationFactory
 from .file_logger import file_logger
@@ -28,11 +30,40 @@ _logger.info(
 )
 
 
-@router.post("/api/divination")
 @limiter.limit(settings.rate_limit)
-async def chatgpt(request: Request, divination_body: DivinationBody):
+def limit_when_not_login(request: Request):
+    """
+    Limit when not login
+    """
+
+
+def limit_when_login(request: Request, user: User):
+    """
+    Limit when login
+    """
+    @limiter.limit(settings.user_rate_limit, key_func=lambda: (user.user_name, user.login_type))
+    def limit(request: Request):
+        """
+        Limit when login
+        """
+    limit(request)
+
+
+@router.post("/api/divination")
+async def divination(
+        request: Request,
+        divination_body: DivinationBody,
+        user: Optional[User] = Depends(get_user)
+):
+
+    # rate limit when not login
+    if not user:
+        limit_when_not_login(request)
+    else:
+        limit_when_login(request, user)
+
     _logger.info(
-        f"Request from {get_real_ipaddr(request)}, body={divination_body.json(ensure_ascii=False)}"
+        f"Request from {get_real_ipaddr(request)}, user={user.json(ensure_ascii=False) if user else None} body={divination_body.json(ensure_ascii=False)}"
     )
     if any(w in divination_body.prompt.lower() for w in STOP_WORDS):
         raise HTTPException(
@@ -66,6 +97,7 @@ async def chatgpt(request: Request, divination_body: DivinationBody):
     latency = datetime.now() - start_time
     file_logger.info(
         f"Request from {get_real_ipaddr(request)}, "
+        f"user={user.json(ensure_ascii=False) if user else None}, "
         f"latency_seconds={latency.total_seconds()}, "
         f"body={divination_body.json(ensure_ascii=False)}, "
         f"res={json.dumps(res, ensure_ascii=False)}"

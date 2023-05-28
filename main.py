@@ -13,6 +13,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from router.limiter import limiter, get_real_ipaddr
 from router.date_router import router as date_router
 from router.chatgpt_router import router as chatgpt_router
+from router.user_router import router as user_router
 
 
 _logger = logging.getLogger(__name__)
@@ -36,9 +37,11 @@ app.add_middleware(
 
 app.include_router(date_router)
 app.include_router(chatgpt_router)
+app.include_router(user_router)
 
 
 @app.get("/")
+@app.get("/login/{path}")
 async def read_index(request: Request):
     _logger.info(f"Request from {get_real_ipaddr(request)}")
     return FileResponse(
