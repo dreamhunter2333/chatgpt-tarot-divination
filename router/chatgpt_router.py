@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 import openai
 import logging
 
@@ -9,12 +10,11 @@ from fastapi import Depends, HTTPException, Request, status
 from config import settings
 from fastapi import APIRouter
 
-from models import DivinationBody
+from models import DivinationBody, User
 from router.user import get_user
 from .limiter import get_real_ipaddr, limiter
 from .divination import DivinationFactory
 from .file_logger import file_logger
-from models.db_models import User, DBSession
 
 openai.api_key = settings.api_key
 openai.api_base = settings.api_base
@@ -37,32 +37,33 @@ def limit_when_not_login(request: Request):
     """
 
 
+def limit_when_login(request: Request, user: User):
+    """
+    Limit when login
+    """
+    @limiter.limit(settings.user_rate_limit, key_func=lambda: (user.user_name, user.login_type))
+    def limit(request: Request):
+        """
+        Limit when login
+        """
+    limit(request)
+
+
 @router.post("/api/divination")
-async def divination(request: Request, divination_body: DivinationBody, user_name: str = Depends(get_user)):
-    if not user_name:
+async def divination(
+        request: Request,
+        divination_body: DivinationBody,
+        user: Optional[User] = Depends(get_user)
+):
+
+    # rate limit when not login
+    if not user:
         limit_when_not_login(request)
-        return chatgpt(request, divination_body)
-    with DBSession() as session:
-        user = session.query(User).filter(
-            User.name == user_name
-        ).with_for_update().one_or_none()
-        if not user:
-            limit_when_not_login(request)
-            _logger.warning(f"User {user_name} not found")
-            return chatgpt(request, divination_body)
-        if user.usage >= user.limit:
-            _logger.warning(
-                f"User {user_name} usage {user.usage} exceeded limit {user.limit}")
-            limit_when_not_login(request)
-        res = chatgpt(request, divination_body)
-        user.usage += 1
-        session.commit()
-        return res
+    else:
+        limit_when_login(request, user)
 
-
-def chatgpt(request: Request, divination_body: DivinationBody):
     _logger.info(
-        f"Request from {get_real_ipaddr(request)}, body={divination_body.json(ensure_ascii=False)}"
+        f"Request from {get_real_ipaddr(request)}, user={user.json(ensure_ascii=False) if user else None} body={divination_body.json(ensure_ascii=False)}"
     )
     if any(w in divination_body.prompt.lower() for w in STOP_WORDS):
         raise HTTPException(
@@ -96,6 +97,7 @@ def chatgpt(request: Request, divination_body: DivinationBody):
     latency = datetime.now() - start_time
     file_logger.info(
         f"Request from {get_real_ipaddr(request)}, "
+        f"user={user.json(ensure_ascii=False) if user else None}, "
         f"latency_seconds={latency.total_seconds()}, "
         f"body={divination_body.json(ensure_ascii=False)}, "
         f"res={json.dumps(res, ensure_ascii=False)}"

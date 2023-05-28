@@ -2,7 +2,22 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class JwtPayload(BaseModel):
+class SettingsInfo(BaseModel):
+    login_type: str
+    user_name: str
+    rate_limit: str
+    user_rate_limit: str
+    ad_client: str = ""
+    ad_slot: str = ""
+
+
+class OauthBody(BaseModel):
+    login_type: str
+    code: Optional[str]
+
+
+class User(BaseModel):
+    login_type: str
     user_name: str
     expire_at: float
 

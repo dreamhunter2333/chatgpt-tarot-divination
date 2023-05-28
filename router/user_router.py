@@ -1,68 +1,73 @@
-import datetime
 from typing import Optional
 import jwt
+import datetime
 import logging
-import bcrypt
 
-from fastapi import APIRouter, Form, status
-from fastapi.responses import JSONResponse
-
-from models.db_models import User, DBSession
+from fastapi import APIRouter, Depends, HTTPException, status
+import requests
 
 from config import settings
-from models import JwtPayload
+from models import OauthBody, SettingsInfo, User
+from router.user import get_user
 
 router = APIRouter()
 _logger = logging.getLogger(__name__)
 
-
-@router.post("/api/v1/register", tags=["User"])
-def register(name: str = Form(), password: str = Form(), invite_user_name: Optional[str] = None):
-    with DBSession() as session:
-        user = session.query(User).filter(
-            User.name == name
-        ).one_or_none()
-        if user:
-            _logger.info(f"User already exists: {name}")
-            return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=f"User already exists: {name}")
-        if invite_user_name:
-            invite_user = session.query(User).filter(
-                User.name == invite_user_name
-            ).one_or_none()
-            if not invite_user:
-                _logger.info(f"invite_user do not exists: {invite_user_name}")
-                return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=f"invite_user do not exists: {invite_user_name}")
-            invite_user.limit += settings.invite_reward
-        session.add(User(
-            name=name,
-            password=bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()),
-            limit=settings.default_limit,
-        ))
-        session.commit()
-        _logger.info(f"User register: {name}")
-        return JSONResponse(status_code=status.HTTP_201_CREATED, content="User created")
+GITHUB_URL = "https://github.com/login/oauth/authorize?" \
+    f"client_id={settings.github_client_id}" \
+    "&scope=user"
+GITHUB_TOEKN_URL = "https://github.com/login/oauth/access_token" \
+    f"?client_id={settings.github_client_id}" \
+    f"&client_secret={settings.github_client_secret}"
+GITHUB_USER_URL = "https://api.github.com/user"
 
 
-@router.post("/api/v1/login", tags=["User"])
-def login(name: str = Form(), password: str = Form()):
-    with DBSession() as session:
-        user = session.query(User).filter(
-            User.name == name
-        ).one_or_none()
-        if not user:
-            _logger.info(f"User not found when login: {name}")
-            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content="User not found")
-        if not bcrypt.checkpw(password.encode('utf-8'), user.password):
-            _logger.info(f"Wrong password when login: {name}")
-            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content="Wrong password")
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content=jwt.encode(
-                JwtPayload(
-                    user_name=user.name,
-                    expire_at=(datetime.datetime.now() +
-                               datetime.timedelta(days=30)).timestamp(),
-                ).dict(),
-                settings.jwt_secret, algorithm="HS256"
-            )
+@router.get("/api/v1/settings", tags=["User"])
+def info(user: Optional[User] = Depends(get_user)):
+    return SettingsInfo(
+        login_type=user.login_type if user else "",
+        user_name=user.user_name if user else "",
+        ad_client=settings.ad_client,
+        ad_slot=settings.ad_slot,
+        rate_limit=settings.rate_limit,
+        user_rate_limit=settings.user_rate_limit
+    )
+
+
+@router.get("/api/v1/login", tags=["User"])
+def login(login_type: str, redirect_url: str):
+    if login_type == "github":
+        return f"{GITHUB_URL}&redirect_uri={redirect_url}"
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content="Login type not supported"
+    )
+
+
+@router.post("/api/v1/oauth", tags=["User"])
+def oauth(oauth_body: OauthBody):
+    if oauth_body.login_type == "github" and oauth_body.code:
+        access_token = requests.post(
+            f"{GITHUB_TOEKN_URL}&code={oauth_body.code}",
+            headers={"Accept": "application/json"}
+        ).json()['access_token']
+        res = requests.get(
+            GITHUB_USER_URL,
+            headers={
+                "Authorization": f"token {access_token}",
+                "Accept": "application/json"
+            }
+        ).json()
+        user_name = res['login']
+        return jwt.encode(
+            User(
+                login_type=oauth_body.login_type,
+                user_name=user_name,
+                expire_at=(
+                    datetime.datetime.now() +
+                    datetime.timedelta(days=30)
+                ).timestamp(),
+            ).dict(),
+            settings.jwt_secret, algorithm="HS256"
         )
+    raise HTTPException(status_code=400, detail="Login type not supported")

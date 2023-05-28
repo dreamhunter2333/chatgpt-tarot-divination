@@ -1,12 +1,13 @@
 import datetime
 import logging
+from typing import Optional
 import jwt
 
 from fastapi import Depends, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from config import settings
-from models import JwtPayload
+from models import User
 from fastapi import HTTPException
 
 _logger = logging.getLogger(__name__)
@@ -16,18 +17,18 @@ DEFAULT_TOKEN = "xxx"
 
 def get_user(
     credentials: HTTPAuthorizationCredentials = Depends(security)
-) -> str:
+) -> Optional[User]:
     try:
         jwt_token = credentials.credentials
         if jwt_token == DEFAULT_TOKEN:
             return ""
         payload = jwt.decode(
             jwt_token, settings.jwt_secret, algorithms=["HS256"])
-        jwt_payload = JwtPayload.parse_obj(payload)
+        jwt_payload = User.parse_obj(payload)
         if jwt_payload.expire_at < datetime.datetime.now().timestamp():
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
-        return jwt_payload.user_name
+        return jwt_payload
     except Exception as e:
         _logger.exception(e)
-        return ""
+        return

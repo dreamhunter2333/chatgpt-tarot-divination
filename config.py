@@ -13,12 +13,14 @@ class Settings(BaseSettings):
     api_key: str = "sk-xxx"
     api_base: str = "https://api.openai.com/v1"
     model: str = "gpt-3.5-turbo"
-    rate_limit: str = "10/minute"
+    rate_limit: str = "60/hour"
+    user_rate_limit: str = "600/hour"
     log_dir: str = ""
-    db_path: str = "divination.db"
-    default_limit: int = 1000
+    github_client_id: str = ""
+    github_client_secret: str = ""
     jwt_secret: str = "secret"
-    invite_reward: int = 1000
+    ad_client: str = ""
+    ad_slot: str = ""
 
     class Config:
         env_file = ".env"

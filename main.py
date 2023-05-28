@@ -41,6 +41,7 @@ app.include_router(user_router)
 
 
 @app.get("/")
+@app.get("/login/{path}")
 async def read_index(request: Request):
     _logger.info(f"Request from {get_real_ipaddr(request)}")
     return FileResponse(
