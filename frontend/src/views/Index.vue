@@ -43,7 +43,7 @@ const onSubmit = async () => {
         plum_flower: prompt_type.value == "plum_flower" ? plum_flower.value : null,
       }),
       headers: {
-        Authorization: `Bearer ${state_jwt.value || "xxx"}`,
+        "Authorization": `Bearer ${state_jwt.value || "xxx"}`,
         "Content-Type": "application/json"
       },
     });

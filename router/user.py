@@ -20,8 +20,8 @@ def get_user(
 ) -> Optional[User]:
     try:
         jwt_token = credentials.credentials
-        if jwt_token == DEFAULT_TOKEN:
-            return ""
+        if not jwt_token or jwt_token == DEFAULT_TOKEN:
+            return
         payload = jwt.decode(
             jwt_token, settings.jwt_secret, algorithms=["HS256"])
         jwt_payload = User.parse_obj(payload)
