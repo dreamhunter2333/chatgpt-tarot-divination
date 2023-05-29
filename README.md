@@ -42,6 +42,19 @@ services:
 
 ## Local Run
 
+创建 `.env` 文件，填入如下内容, `api_key` 为必填项, 其余为可选项
+
+```bash
+api_key=sk-xxxx
+api_base=https://api.openai.com/v1
+github_client_id=xxx
+github_client_secret=xxx
+ad_client=ca-pub-xxx
+ad_slot=123
+```
+
+RUN
+
 ```bash
 cd frontend
 pnpm install
