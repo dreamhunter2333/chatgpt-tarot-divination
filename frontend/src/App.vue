@@ -20,7 +20,7 @@ const fetchSettings = async () => {
   const response = await fetch(`${API_BASE}/api/v1/settings`, {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${state_jwt.value || "xxx"}`,
+      "Authorization": `Bearer ${state_jwt.value || "xxx"}`,
       "Content-Type": "application/json"
     },
   });
