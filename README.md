@@ -13,6 +13,7 @@
 - [x] 周公解梦
 - [x] 起名
 - [x] 梅花易数
+- [x] 姻缘 ![@alongLFB](https://github.com/alongLFB)
 
 ![demo](assets/demo.png)
 
