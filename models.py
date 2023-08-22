@@ -34,9 +34,15 @@ class PlumFlower(BaseModel):
     num2: int
 
 
+class Fate(BaseModel):
+    name1: str
+    name2: str
+
+
 class DivinationBody(BaseModel):
     prompt: str
     prompt_type: str
     birthday: str
     new_name: Optional[NewName] = None
     plum_flower: Optional[PlumFlower] = None
+    fate: Optional[Fate] = None
