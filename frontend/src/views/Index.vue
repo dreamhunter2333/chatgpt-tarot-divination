@@ -24,6 +24,7 @@ const sexOptions = [
   { label: "女", value: "女" },
 ]
 const plum_flower = ref({ num1: 0, num2: 0 })
+const fate_body = ref({ name1: "", name2: "" })
 
 const onSubmit = async () => {
   try {
@@ -41,6 +42,7 @@ const onSubmit = async () => {
           new_name_prompt: new_name_prompt.value
         },
         plum_flower: prompt_type.value == "plum_flower" ? plum_flower.value : null,
+        fate: prompt_type.value == "fate" ? fate_body.value : null
       }),
       headers: {
         "Authorization": `Bearer ${state_jwt.value || "xxx"}`,
@@ -129,6 +131,25 @@ watch(birthday, async (newBirthday, oldBirthday) => {
           <n-form-item label="数字二" label-placement="left">
             <n-input-number v-model:value="plum_flower.num2" :min="0" :max="1000" />
           </n-form-item>
+        </div>
+      </div>
+      <div v-if="prompt_type == 'fate'">
+        <div style="display: inline-block;">
+          <h4>缘分是天定的，幸福是自己的。</h4>
+          <p>想知道你和 ta 有没有缘分呢，编辑“姓名1” “姓名2”，然后点击“一键预测”。</p>
+          <p>如郭靖 黄蓉，然后点击一键预测。 就能查看你和 ta 的缘分了。</p>
+          <n-form-item label="姓名1" label-placement="left">
+            <n-input v-model:value="fate_body.name1" round maxlength="40" />
+          </n-form-item>
+          <n-form-item label="姓名2" label-placement="left">
+            <n-input v-model:value="fate_body.name2" round maxlength="40" />
+          </n-form-item>
+          <div class="footer" style="text-align:center">
+            <p>
+              <a href="https://github.com/alongLFB/alonglfb.github.io/blob/master/images/wechatpay.png"
+                style="text-decoration: underline;" target="_blank">请作者喝杯咖啡</a> - 🤗 Along Li
+            </p>
+          </div>
         </div>
       </div>
       <div v-if="menu_type != 'about'" class="button-container">

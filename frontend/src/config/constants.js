@@ -4,6 +4,10 @@ export const MENU_OPTIONS = [
         key: 'tarot',
     },
     {
+        label: '姻缘',
+        key: 'fate',
+    },
+    {
         label: '传统算卦',
         key: 'birthday',
         children: [
@@ -38,6 +42,10 @@ export const DIVINATION_OPTIONS = [
     {
         label: '塔罗牌',
         key: 'tarot',
+    },
+    {
+        label: '姻缘',
+        key: 'fate',
     },
     {
         label: '生辰八字',

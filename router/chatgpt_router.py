@@ -86,11 +86,11 @@ async def divination(
         temperature=0.9,
         top_p=1,
         messages=[
-            {"role": "user", "content": prompt},
             {
                 "role": "system",
                 "content": system_prompt
             },
+            {"role": "user", "content": prompt}
         ]
     )
     res = response['choices'][0]['message']['content']
