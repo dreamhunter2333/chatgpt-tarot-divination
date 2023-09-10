@@ -3,7 +3,7 @@ name: Docker Image CI
 on:
   push:
     tags:
-    - '*'
+      - "*"
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -34,7 +34,7 @@ jobs:
           run_install: false
 
       - name: Build Frontend
-        run: cd frontend && pnpm install && pnpm build
+        run: cd frontend && pnpm install && pnpm build && cp -r frontend/dist ../dist
 
       - name: Log in to the Container registry
         uses: docker/login-action@v2.1.0

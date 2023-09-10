@@ -1,3 +1,4 @@
+import os
 import logging
 import uvicorn
 
@@ -39,18 +40,17 @@ app.include_router(date_router)
 app.include_router(chatgpt_router)
 app.include_router(user_router)
 
+if os.path.exists("dist"):
+    @app.get("/")
+    @app.get("/login/{path}")
+    async def read_index(request: Request):
+        _logger.info(f"Request from {get_real_ipaddr(request)}")
+        return FileResponse(
+            "dist/index.html",
+            headers={"Cache-Control": "no-cache"}
+        )
 
-@app.get("/")
-@app.get("/login/{path}")
-async def read_index(request: Request):
-    _logger.info(f"Request from {get_real_ipaddr(request)}")
-    return FileResponse(
-        "dist/index.html",
-        headers={"Cache-Control": "no-cache"}
-    )
-
-
-app.mount("/", StaticFiles(directory="dist"), name="static")
+    app.mount("/", StaticFiles(directory="dist"), name="static")
 
 
 @app.exception_handler(Exception)
