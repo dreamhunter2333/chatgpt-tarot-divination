@@ -12,7 +12,7 @@ from fastapi import HTTPException
 
 _logger = logging.getLogger(__name__)
 security = HTTPBearer()
-DEFAULT_TOKEN = "xxx"
+DEFAULT_TOKEN = ["xxx", "undefined"]
 
 
 def get_user(
@@ -20,7 +20,7 @@ def get_user(
 ) -> Optional[User]:
     try:
         jwt_token = credentials.credentials
-        if not jwt_token or jwt_token == DEFAULT_TOKEN:
+        if not jwt_token or jwt_token in DEFAULT_TOKEN:
             return
         payload = jwt.decode(
             jwt_token, settings.jwt_secret, algorithms=["HS256"])
