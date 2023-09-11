@@ -60,12 +60,18 @@ const onSubmit = async () => {
         }
       },
       onmessage(msg) {
-        console.log(msg);
         if (msg.event === 'FatalError') {
           throw new FatalError(msg.data);
         }
-        tmp_result.value += JSON.parse(msg.data);
-        result.value = md.render(tmp_result.value);
+        if (!msg.data) {
+          return;
+        }
+        try {
+          tmp_result.value += JSON.parse(msg.data);
+          result.value = md.render(tmp_result.value);
+        } catch (error) {
+          console.error(error);
+        }
       },
       onclose() {
 
