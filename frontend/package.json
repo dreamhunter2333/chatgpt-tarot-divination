@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@vueuse/core": "^10.1.2",
     "markdown-it": "^13.0.1",
     "naive-ui": "^2.34.3",
