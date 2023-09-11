@@ -1,5 +1,6 @@
 import json
 from typing import Optional
+from fastapi.responses import StreamingResponse
 import openai
 import logging
 
@@ -78,28 +79,24 @@ async def divination(
         )
     prompt, system_prompt = divination_obj.build_prompt(divination_body)
 
-    start_time = datetime.now()
+    def get_openai_generator():
+        openai_stream = openai.ChatCompletion.create(
+            model=settings.model,
+            max_tokens=1000,
+            temperature=0.9,
+            top_p=1,
+            stream=True,
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_prompt
+                },
+                {"role": "user", "content": prompt}
+            ]
+        )
+        for event in openai_stream:
+            if "content" in event["choices"][0].delta:
+                current_response = event["choices"][0].delta.content
+                yield f"data: {json.dumps(current_response)}\n\n"
 
-    response = openai.ChatCompletion.create(
-        model=settings.model,
-        max_tokens=1000,
-        temperature=0.9,
-        top_p=1,
-        messages=[
-            {
-                "role": "system",
-                "content": system_prompt
-            },
-            {"role": "user", "content": prompt}
-        ]
-    )
-    res = response['choices'][0]['message']['content']
-    latency = datetime.now() - start_time
-    file_logger.info(
-        f"Request from {get_real_ipaddr(request)}, "
-        f"user={user.json(ensure_ascii=False) if user else None}, "
-        f"latency_seconds={latency.total_seconds()}, "
-        f"body={divination_body.json(ensure_ascii=False)}, "
-        f"res={json.dumps(res, ensure_ascii=False)}"
-    )
-    return res
+    return StreamingResponse(get_openai_generator(), media_type='text/event-stream')
