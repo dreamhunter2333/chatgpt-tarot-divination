@@ -92,7 +92,7 @@ const onSubmit = async () => {
 watch(birthday, async (newBirthday, oldBirthday) => {
   lunarBirthday.value = '转换中...'
   try {
-    const res = await fetch(`${API_BASE} / api / date ? date = ${newBirthday}`)
+    const res = await fetch(`${API_BASE}/api/date?date=${newBirthday}`)
     lunarBirthday.value = await res.json()
   } catch (error) {
     console.error(error)
