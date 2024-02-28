@@ -29,11 +29,11 @@ services:
       - 8000:8000
     environment:
       - api_key=sk-xxx
-      - api_base=https://api.openai.com/v1 # optional
-      - model=gpt-3.5-turbo # optional
-      - rate_limit=10/minute # optional
-      - user_rate_limit=600/hour # optional
-      - log_dir=/logs/ # optional
+      # - api_base=https://api.openai.com/v1 # optional
+      # - model=gpt-3.5-turbo # optional
+      # - rate_limit=10/minute # optional
+      # - user_rate_limit=600/hour # optional
+      # - log_dir=/logs/ # optional
       - github_client_id=xxx
       - github_client_secret=xxx
       - jwt_secret=secret
