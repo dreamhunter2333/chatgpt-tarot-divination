@@ -13,7 +13,7 @@
 - [x] 周公解梦
 - [x] 起名
 - [x] 梅花易数
-- [x] 姻缘 ![@alongLFB](https://github.com/alongLFB)
+- [x] 姻缘 [@alongLFB](https://github.com/alongLFB)
 
 ![demo](assets/demo.png)
 
@@ -61,6 +61,7 @@ cd frontend
 pnpm install
 pnpm build --emptyOutDir
 cd ..
+rm -r dist
 cp -r frontend/dist/ dist
 python3 -m venv ./venv
 ./venv/bin/python3 -m pip install -r requirements.txt
