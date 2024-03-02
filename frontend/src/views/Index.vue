@@ -4,8 +4,10 @@ import { watch, ref } from "vue";
 import MarkdownIt from 'markdown-it';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 import { useStorage } from '@vueuse/core';
+import { useIsMobile } from '../utils/composables'
 
 import { MENU_OPTIONS, DIVINATION_OPTIONS, ABOUT } from "../config/constants";
+const isMobile = useIsMobile()
 
 const state_jwt = useStorage('jwt')
 const prompt = ref("");
@@ -103,7 +105,8 @@ watch(birthday, async (newBirthday, oldBirthday) => {
 <template>
   <div>
     <n-spin size="large" description="正在占卜..." :show="loading">
-      <n-menu v-model:value="prompt_type" mode="horizontal" :options="MENU_OPTIONS" />
+      <n-menu accordion v-model:value="prompt_type" :mode="isMobile ? 'vertical' : 'horizontal'"
+        :options="MENU_OPTIONS" />
       <n-card v-if="prompt_type != 'about'">
         <div style="display: inline-block;">
           <n-form-item label="当前占卜" label-placement="left">

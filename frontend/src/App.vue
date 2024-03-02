@@ -3,8 +3,10 @@ import { NGrid, NGi, NSpace, NAlert, NButton, NMessageProvider } from 'naive-ui'
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from 'vue-router'
 import { useStorage } from '@vueuse/core'
+import { useIsMobile } from './utils/composables'
 
 const state_jwt = useStorage('jwt')
+const isMobile = useIsMobile()
 
 const router = useRouter()
 const settings = ref({});
@@ -38,8 +40,8 @@ onMounted(async () => {
 
 <template>
   <n-message-provider>
-    <n-grid x-gap="12" :cols="6">
-      <n-gi>
+    <n-grid x-gap="12" :cols="isMobile ? 4 : 6">
+      <n-gi v-if="!isMobile">
         <div class="side">
           <ins class="adsbygoogle" style="display:block" :data-ad-client="settings.ad_client"
             :data-ad-slot="settings.ad_slot" data-ad-format="auto" data-full-width-responsive="true"></ins>
@@ -69,7 +71,7 @@ onMounted(async () => {
           </n-space>
         </div>
       </n-gi>
-      <n-gi>
+      <n-gi v-if="!isMobile">
         <div class="side">
           <ins class="adsbygoogle" style="display:block" :data-ad-client="settings.ad_client"
             :data-ad-slot="settings.ad_slot" data-ad-format="auto" data-full-width-responsive="true"></ins>

@@ -12,6 +12,7 @@
     "@vueuse/core": "^10.1.2",
     "markdown-it": "^13.0.1",
     "naive-ui": "^2.34.3",
+    "vooks": "^0.2.12",
     "vue": "^3.2.47",
     "vue-router": "^4.2.1"
   },

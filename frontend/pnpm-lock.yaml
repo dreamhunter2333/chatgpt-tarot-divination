@@ -17,6 +17,9 @@ dependencies:
   naive-ui:
     specifier: ^2.34.3
     version: 2.34.4(vue@3.3.4)
+  vooks:
+    specifier: ^0.2.12
+    version: 0.2.12(vue@3.3.4)
   vue:
     specifier: ^3.2.47
     version: 3.3.4
