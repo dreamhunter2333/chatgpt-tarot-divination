@@ -14,6 +14,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from router.limiter import limiter, get_real_ipaddr
 from router.date_router import router as date_router
 from router.chatgpt_router import router as chatgpt_router
+from router.divination_router import router as divination_router
 from router.user_router import router as user_router
 
 
@@ -38,6 +39,7 @@ app.add_middleware(
 
 app.include_router(date_router)
 app.include_router(chatgpt_router)
+app.include_router(divination_router)
 app.include_router(user_router)
 
 if os.path.exists("dist"):
