@@ -4,7 +4,6 @@ from fastapi.responses import StreamingResponse
 import openai
 import logging
 
-from datetime import datetime
 from fastapi import Depends, HTTPException, Request, status
 
 
@@ -15,7 +14,6 @@ from models import DivinationBody, User
 from router.user import get_user
 from .limiter import get_real_ipaddr, limiter
 from .divination import DivinationFactory
-from .file_logger import file_logger
 
 openai.api_key = settings.api_key
 openai.api_base = settings.api_base
@@ -26,9 +24,6 @@ STOP_WORDS = [
     "幫助", "現在", "開始", "开始", "start", "restart", "重新开始", "重新開始",
     "遵守", "遵循", "遵从", "遵從"
 ]
-_logger.info(
-    f"Loaded divination types: {list(DivinationFactory.divination_map.keys())}"
-)
 
 
 @limiter.limit(settings.rate_limit)
@@ -68,13 +63,13 @@ async def divination(
     )
     if any(w in divination_body.prompt.lower() for w in STOP_WORDS):
         raise HTTPException(
-            status_code=403,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Prompt contains stop words"
         )
     divination_obj = DivinationFactory.get(divination_body.prompt_type)
     if not divination_obj:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"No prompt type {divination_body.prompt_type} not supported"
         )
     prompt, system_prompt = divination_obj.build_prompt(divination_body)

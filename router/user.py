@@ -3,7 +3,7 @@ import logging
 from typing import Optional
 import jwt
 
-from fastapi import Depends, status, Request
+from fastapi import Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from config import settings
@@ -29,6 +29,5 @@ def get_user(
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
         return jwt_payload
-    except Exception as e:
-        _logger.exception(e)
+    except Exception:
         return

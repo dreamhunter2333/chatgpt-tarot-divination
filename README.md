@@ -33,7 +33,6 @@ services:
       # - model=gpt-3.5-turbo # optional
       # - rate_limit=10/minute # optional
       # - user_rate_limit=600/hour # optional
-      # - log_dir=/logs/ # optional
       - github_client_id=xxx
       - github_client_secret=xxx
       - jwt_secret=secret
