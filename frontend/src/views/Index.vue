@@ -11,12 +11,12 @@ const isMobile = useIsMobile()
 
 const state_jwt = useStorage('jwt')
 const prompt = ref("");
-const result = ref("");
+const result = useStorage("result", "");
 const tmp_result = ref("");
-const prompt_type = ref("tarot");
-const menu_type = ref("divination");
-const lunarBirthday = ref('龙年 庚辰年 七月十八 巨蟹座')
-const birthday = ref("2000-08-17 00:00:00");
+const prompt_type = useStorage("prompt_type", "tarot");
+const menu_type = useStorage("menu_type", "divination");
+const lunarBirthday = useStorage("lunarBirthday", '龙年 庚辰年 七月十八 巨蟹座')
+const birthday = useStorage("birthday", "2000-08-17 00:00:00");
 const loading = ref(false);
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 const md = new MarkdownIt();
@@ -28,8 +28,8 @@ const sexOptions = [
   { label: "男", value: "男" },
   { label: "女", value: "女" },
 ]
-const plum_flower = ref({ num1: 0, num2: 0 })
-const fate_body = ref({ name1: "", name2: "" })
+const plum_flower = useStorage("plum_flower", { num1: 0, num2: 0 })
+const fate_body = useStorage("fate_body", { name1: "", name2: "" })
 
 const onSubmit = async () => {
   try {
