@@ -197,10 +197,6 @@ watch(birthday, async (newBirthday, oldBirthday) => {
 </template>
 
 <style scoped>
-.n-menu {
-  text-align: center;
-}
-
 .button-container {
   display: flex;
   justify-content: center;
