@@ -1,14 +1,17 @@
 <script setup>
-import { NGrid, NGi, NSpace, NAlert, NButton, NMessageProvider } from 'naive-ui'
-import { NConfigProvider, NGlobalStyle, NBackTop } from 'naive-ui';
+import {
+  NGrid, NGi, NSpace, NAlert, NButton, NMessageProvider, NPageHeader,
+  NConfigProvider, NGlobalStyle, NBackTop, zhCN, darkTheme
+} from 'naive-ui'
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from 'vue-router'
 import { useStorage } from '@vueuse/core'
 import { useIsMobile } from './utils/composables'
-import { zhCN } from 'naive-ui'
 
 const state_jwt = useStorage('jwt')
+const themeStorage = useStorage('theme', 'light')
 const isMobile = useIsMobile()
+const theme = computed(() => themeStorage.value == 'dark' ? darkTheme : null)
 
 const router = useRouter()
 const settings = ref({});
@@ -35,48 +38,57 @@ const fetchSettings = async () => {
 
 onMounted(async () => {
   fetchSettings();
-  (window.adsbygoogle = window.adsbygoogle || []).push({});
-  (window.adsbygoogle = window.adsbygoogle || []).push({});
+  if (!isMobile && settings.value.ad_client) {
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+  }
 });
 </script>
 
 <template>
-  <n-config-provider :locale="zhCN">
+  <n-config-provider :locale="zhCN" :theme="theme">
     <n-global-style />
     <n-message-provider>
       <n-grid x-gap="12" :cols="isMobile ? 4 : 6">
         <n-gi v-if="!isMobile">
-          <div class="side">
+          <div class="side" v-if="settings.ad_client">
             <ins class="adsbygoogle" style="display:block" :data-ad-client="settings.ad_client"
               :data-ad-slot="settings.ad_slot" data-ad-format="auto" data-full-width-responsive="true"></ins>
           </div>
         </n-gi>
         <n-gi span="4">
           <div class="main">
-            <n-space vertical>
-              <h2>AI 占卜 - 本项目仅供娱乐</h2>
-              <n-layout>
+            <n-page-header subtitle="本项目仅供娱乐">
+              <template #title>
+                <h3>AI 占卜</h3>
+              </template>
+              <template #extra>
+                <n-space>
+                  <n-button v-if="settings.user_name" @click="logOut">登出</n-button>
+                  <n-button v-else type="primary" @click="router.push('/login')">登录</n-button>
+                  <n-button @click="themeStorage = (themeStorage == 'dark' ? 'light' : 'dark')">
+                    {{ themeStorage == 'dark' ? '亮色' : '暗色' }}
+                  </n-button>
+                  <n-button type="primary" ghost tag="a" target="_blank"
+                    href="https://github.com/dreamhunter2333/chatgpt-tarot-divination">
+                    ☆ Github
+                  </n-button>
+                </n-space>
+              </template>
+              <template #footer>
                 <n-alert v-if="settings.user_name" type="success">
                   你好, {{ settings.login_type }} 用户 {{ settings.user_name }}
-                  <n-button tertiary type="primary" round @click="logOut">登出</n-button>
-                  <n-button tag="a" target="_blank" tertiary type="primary" round
-                    href="https://github.com/dreamhunter2333/chatgpt-tarot-divination">☆ Github</n-button>
                 </n-alert>
                 <n-alert v-else type="warning">
                   当前未登录, 处于限流模式 ({{ settings.rate_limit }})
-                  <n-button type="warning" round @click="router.push('/login')">登录</n-button>
-                  <n-button tag="a" target="_blank" tertiary type="primary" round
-                    href="https://github.com/dreamhunter2333/chatgpt-tarot-divination">☆ Github</n-button>
                 </n-alert>
-                <n-layout>
-                  <router-view></router-view>
-                </n-layout>
-              </n-layout>
-            </n-space>
+              </template>
+            </n-page-header>
+            <router-view></router-view>
           </div>
         </n-gi>
         <n-gi v-if="!isMobile">
-          <div class="side">
+          <div class="side" v-if="settings.ad_client">
             <ins class="adsbygoogle" style="display:block" :data-ad-client="settings.ad_client"
               :data-ad-slot="settings.ad_slot" data-ad-format="auto" data-full-width-responsive="true"></ins>
           </div>
@@ -111,5 +123,6 @@ onMounted(async () => {
 
 .n-alert {
   text-align: center;
+  margin-bottom: 10px;
 }
 </style>

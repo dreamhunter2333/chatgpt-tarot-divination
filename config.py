@@ -26,4 +26,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-_logger.info(f"settings: {settings.json()}")
+_logger.info(f"settings: {settings.json(indent=2)}")

@@ -2,6 +2,7 @@
   "name": "chatgpt-tarot-divination",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build --mode prod",
@@ -10,15 +11,16 @@
   "dependencies": {
     "@microsoft/fetch-event-source": "^2.0.1",
     "@vueuse/core": "^10.9.0",
-    "markdown-it": "^14.0.0",
-    "naive-ui": "2.34.3",
+    "markdown-it": "^14.1.0",
+    "naive-ui": "2.38.1",
     "vooks": "^0.2.12",
-    "vue": "^3.4.21",
-    "vue-router": "^4.3.0"
+    "vue": "^3.4.25",
+    "vue-router": "^4.3.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.1.5",
-    "vite-plugin-pwa": "^0.19.2"
+    "vite": "^5.2.10",
+    "vite-plugin-pwa": "^0.19.8",
+    "workbox-window": "^7.1.0"
   }
 }
