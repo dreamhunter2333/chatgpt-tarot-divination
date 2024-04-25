@@ -3,10 +3,12 @@ import {
   NInput, NButton, NCard, NDatePicker, NSelect, NFormItem,
   NInputNumber, NTabs, NTabPane, NDrawer, NDrawerContent
 } from 'naive-ui'
-import { watch, ref } from "vue";
+import { watch, ref, onMounted } from "vue";
 import MarkdownIt from 'markdown-it';
 import { fetchEventSource, EventStreamContentType } from '@microsoft/fetch-event-source';
 import { useStorage } from '@vueuse/core';
+import { Solar } from 'lunar-javascript'
+
 import { useIsMobile } from '../utils/composables'
 import About from '../components/About.vue'
 
@@ -19,7 +21,7 @@ const result = useStorage("result", "");
 const tmp_result = ref("");
 const prompt_type = useStorage("prompt_type", "tarot");
 const menu_type = useStorage("menu_type", "divination");
-const lunarBirthday = useStorage("lunarBirthday", '龙年 庚辰年 七月十八 巨蟹座')
+const lunarBirthday = ref("");
 const birthday = useStorage("birthday", "2000-08-17 00:00:00");
 const loading = ref(false);
 const API_BASE = import.meta.env.VITE_API_BASE || "";
@@ -97,14 +99,21 @@ const onSubmit = async () => {
   }
 };
 
-watch(birthday, async (newBirthday, oldBirthday) => {
-  lunarBirthday.value = '转换中...'
+const computeLunarBirthday = (newBirthday) => {
   try {
-    const res = await fetch(`${API_BASE}/api/date?date=${newBirthday}`)
-    lunarBirthday.value = await res.json()
+    let date = new Date(newBirthday)
+    let solar = Solar.fromYmdHms(
+      date.getFullYear(), date.getMonth() + 1, date.getDate(),
+      date.getHours(), date.getMinutes(), date.getSeconds());
+    lunarBirthday.value = solar.getLunar().toFullString();
   } catch (error) {
     console.error(error)
+    lunarBirthday.value = '转换失败'
   }
+}
+
+watch(birthday, async (newBirthday, oldBirthday) => {
+  computeLunarBirthday(newBirthday)
 })
 
 const changeTab = async (delta) => {
@@ -117,6 +126,10 @@ const changeTab = async (delta) => {
   }
   prompt_type.value = DIVINATION_OPTIONS[newIndex].key;
 }
+
+onMounted(async () => {
+  computeLunarBirthday(birthday.value)
+});
 </script>
 
 <template>
@@ -135,11 +148,13 @@ const changeTab = async (delta) => {
               placeholder="我的财务状况如何" />
           </div>
           <div v-if="prompt_type == 'birthday'">
-            <div style="display: inline-block;">
+            <div style="display: inline-block; text-align: left;">
               <n-form-item label="生日" label-placement="left">
                 <n-date-picker v-model:formatted-value="birthday" value-format="yyyy-MM-dd HH:mm:ss" type="datetime" />
               </n-form-item>
-              <p>农历: {{ lunarBirthday }}</p>
+              <n-form-item label="农历" label-placement="left">
+                <p>{{ lunarBirthday }}</p>
+              </n-form-item>
             </div>
           </div>
           <div v-if="prompt_type == 'new_name'">

@@ -11,6 +11,7 @@
   "dependencies": {
     "@microsoft/fetch-event-source": "^2.0.1",
     "@vueuse/core": "^10.9.0",
+    "lunar-javascript": "^1.6.12",
     "markdown-it": "^14.1.0",
     "naive-ui": "2.38.1",
     "vooks": "^0.2.12",
