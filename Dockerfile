@@ -1,9 +1,7 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
 COPY requirements.txt requirements.txt
-RUN apk add --no-cache gcc g++ \
-    && python -m pip install --no-cache-dir -r requirements.txt \
-    && rm -rf /tmp/* /root/.cache /var/cache/apk/*
+RUN python -m pip install --no-cache-dir -r requirements.txt
 COPY . /app
 WORKDIR /app
 EXPOSE 8000

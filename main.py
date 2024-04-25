@@ -12,7 +12,6 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from src.limiter import limiter, get_real_ipaddr
-from src.date_router import router as date_router
 from src.chatgpt_router import router as chatgpt_router
 from src.divination_router import router as divination_router
 from src.user_router import router as user_router
@@ -37,7 +36,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(date_router)
 app.include_router(chatgpt_router)
 app.include_router(divination_router)
 app.include_router(user_router)
