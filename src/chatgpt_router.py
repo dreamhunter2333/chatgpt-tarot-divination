@@ -11,7 +11,7 @@ from config import settings
 from fastapi import APIRouter
 
 from models import DivinationBody, User
-from router.user import get_user
+from src.user import get_user
 from .limiter import get_real_ipaddr, limiter
 from .divination import DivinationFactory
 
