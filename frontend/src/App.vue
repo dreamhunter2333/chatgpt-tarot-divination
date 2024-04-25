@@ -49,14 +49,14 @@ onMounted(async () => {
   <n-config-provider :locale="zhCN" :theme="theme">
     <n-global-style />
     <n-message-provider>
-      <n-grid x-gap="12" :cols="isMobile ? 4 : 6">
+      <n-grid :x-gap="12" :cols="isMobile ? 4 : 6">
         <n-gi v-if="!isMobile">
-          <div class="side" v-if="settings.ad_client">
+          <div class="side">
             <ins class="adsbygoogle" style="display:block" :data-ad-client="settings.ad_client"
               :data-ad-slot="settings.ad_slot" data-ad-format="auto" data-full-width-responsive="true"></ins>
           </div>
         </n-gi>
-        <n-gi span="4">
+        <n-gi :span="4">
           <div class="main">
             <n-page-header subtitle="本项目仅供娱乐">
               <template #title>
@@ -87,8 +87,8 @@ onMounted(async () => {
             <router-view></router-view>
           </div>
         </n-gi>
-        <n-gi v-if="!isMobile">
-          <div class="side" v-if="settings.ad_client">
+        <n-gi :span="1" v-if="!isMobile">
+          <div class="side">
             <ins class="adsbygoogle" style="display:block" :data-ad-client="settings.ad_client"
               :data-ad-slot="settings.ad_slot" data-ad-format="auto" data-full-width-responsive="true"></ins>
           </div>
