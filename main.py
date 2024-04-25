@@ -11,11 +11,11 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-from router.limiter import limiter, get_real_ipaddr
-from router.date_router import router as date_router
-from router.chatgpt_router import router as chatgpt_router
-from router.divination_router import router as divination_router
-from router.user_router import router as user_router
+from src.limiter import limiter, get_real_ipaddr
+from src.date_router import router as date_router
+from src.chatgpt_router import router as chatgpt_router
+from src.divination_router import router as divination_router
+from src.user_router import router as user_router
 
 
 _logger = logging.getLogger(__name__)

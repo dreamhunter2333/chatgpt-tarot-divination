@@ -8,14 +8,14 @@ import requests
 
 from config import settings
 from models import OauthBody, SettingsInfo, User
-from router.user import get_user
+from src.user import get_user
 
 router = APIRouter()
 _logger = logging.getLogger(__name__)
 
 GITHUB_URL = "https://github.com/login/oauth/authorize?" \
     f"client_id={settings.github_client_id}" \
-    "&scope=user"
+    "&scope=user:email"
 GITHUB_TOEKN_URL = "https://github.com/login/oauth/access_token" \
     f"?client_id={settings.github_client_id}" \
     f"&client_secret={settings.github_client_secret}"
