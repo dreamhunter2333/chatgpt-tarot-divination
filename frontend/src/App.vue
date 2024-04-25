@@ -38,7 +38,7 @@ const fetchSettings = async () => {
 
 onMounted(async () => {
   await fetchSettings();
-  if (!isMobile && settings.value.ad_client) {
+  if (!isMobile.value && settings.value.ad_client) {
     (window.adsbygoogle = window.adsbygoogle || []).push({});
     (window.adsbygoogle = window.adsbygoogle || []).push({});
   }
