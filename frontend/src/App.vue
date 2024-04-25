@@ -58,7 +58,7 @@ onMounted(async () => {
         </n-gi>
         <n-gi :span="4">
           <div class="main">
-            <n-page-header subtitle="本项目仅供娱乐">
+            <n-page-header :subtitle="isMobile ? '' : '本项目仅供娱乐'">
               <template #title>
                 <h3>AI 占卜</h3>
               </template>
