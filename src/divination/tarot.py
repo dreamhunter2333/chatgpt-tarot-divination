@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from models import DivinationBody
+from src.models import DivinationBody
 from .base import DivinationFactory
 
 TAROT_PROMPT = "我请求你担任塔罗占卜师的角色。 " \

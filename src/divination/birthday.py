@@ -1,5 +1,5 @@
 import datetime
-from models import DivinationBody
+from src.models import DivinationBody
 from .base import DivinationFactory
 
 BIRTHDAY_PROMPT = "我请求你担任中国传统的生辰八字算命的角色。" \

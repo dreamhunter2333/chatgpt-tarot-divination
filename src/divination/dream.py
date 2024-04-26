@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from models import DivinationBody
+from src.models import DivinationBody
 from .base import DivinationFactory
 
 DREAM_PROMPT = "我请求你担任中国传统的周公解梦师的角色。" \

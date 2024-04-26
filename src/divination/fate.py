@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from models import DivinationBody
+from src.models import DivinationBody
 from .base import DivinationFactory
 
 SYS_PROMPT = "你是一个姻缘助手，我给你发两个人的名字，用逗号隔开，"\

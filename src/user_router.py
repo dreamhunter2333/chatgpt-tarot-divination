@@ -1,13 +1,14 @@
-from typing import Optional
 import jwt
+import requests
 import datetime
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
-import requests
+from typing import Optional
 
-from config import settings
-from models import OauthBody, SettingsInfo, User
+from fastapi import APIRouter, Depends, HTTPException, status
+
+from src.config import settings
+from src.models import OauthBody, SettingsInfo, User
 from src.user import get_user
 
 router = APIRouter()
@@ -23,19 +24,19 @@ GITHUB_USER_URL = "https://api.github.com/user"
 
 
 @router.get("/api/v1/settings", tags=["User"])
-def info(user: Optional[User] = Depends(get_user)):
+async def info(user: Optional[User] = Depends(get_user)):
     return SettingsInfo(
         login_type=user.login_type if user else "",
         user_name=user.user_name if user else "",
         ad_client=settings.ad_client,
         ad_slot=settings.ad_slot,
-        rate_limit=settings.rate_limit,
-        user_rate_limit=settings.user_rate_limit
+        rate_limit=settings.get_human_rate_limit(),
+        user_rate_limit=settings.get_human_user_rate_limit(),
     )
 
 
 @router.get("/api/v1/login", tags=["User"])
-def login(login_type: str, redirect_url: str):
+async def login(login_type: str, redirect_url: str):
     if login_type == "github":
         return f"{GITHUB_URL}&redirect_uri={redirect_url}"
     raise HTTPException(
@@ -45,7 +46,7 @@ def login(login_type: str, redirect_url: str):
 
 
 @router.post("/api/v1/oauth", tags=["User"])
-def oauth(oauth_body: OauthBody):
+async def oauth(oauth_body: OauthBody):
     if oauth_body.login_type == "github" and oauth_body.code:
         access_token = requests.post(
             f"{GITHUB_TOEKN_URL}&code={oauth_body.code}",

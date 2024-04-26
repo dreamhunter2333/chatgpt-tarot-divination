@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from models import DivinationBody
+from src.models import DivinationBody
 from .base import DivinationFactory
 
 NAME_PROMPT = "我请求你担任中国传统的姓名五格算命师的角色。" \
