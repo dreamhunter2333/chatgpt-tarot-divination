@@ -1,6 +1,6 @@
 import datetime
 from fastapi import HTTPException
-from models import DivinationBody
+from src.models import DivinationBody
 from .base import DivinationFactory
 
 NEW_NAME_PROMPT = (

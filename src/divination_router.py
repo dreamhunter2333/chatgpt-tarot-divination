@@ -1,6 +1,8 @@
 import json
 import uuid
 import openai
+from openai import OpenAI
+
 import logging
 
 from datetime import datetime
@@ -8,15 +10,14 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from config import settings
+from src.config import settings
 from fastapi import APIRouter
 
-from models import BirthdayBody, CommonResponse
-from .limiter import get_real_ipaddr
+from src.models import BirthdayBody, CommonResponse
+from src.limiter import get_real_ipaddr
 from .divination.birthday import BirthdayFactory
 
-openai.api_key = settings.api_key
-openai.api_base = settings.api_base
+client = OpenAI(api_key="", base_url=settings.api_base)
 router = APIRouter()
 security = HTTPBearer()
 _logger = logging.getLogger(__name__)
@@ -65,7 +66,7 @@ def common_openai_streaming_call(
 ) -> StreamingResponse:
     def get_openai_generator():
         try:
-            openai_stream = openai.ChatCompletion.create(
+            openai_stream = client.chat.completions.create(
                 api_key=token,
                 model=settings.model,
                 max_tokens=1000,
@@ -80,14 +81,14 @@ def common_openai_streaming_call(
                     {"role": "user", "content": prompt}
                 ]
             )
-        except openai.error.OpenAIError as e:
+        except openai.OpenAIError as e:
             raise HTTPException(
                 status_code=500,
                 detail=f"OpenAI error: {e}"
             )
         for event in openai_stream:
-            if "content" in event["choices"][0].delta:
-                current_response = event["choices"][0].delta.content
+            if "content" in event.choices[0].delta:
+                current_response = event.choices[0].delta.content
                 yield current_response
 
     return StreamingResponse(get_openai_generator(), media_type='text/event-stream')
@@ -103,7 +104,7 @@ def common_openai_call(
     request_id = uuid.uuid4()
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             api_key=token,
             model=settings.model,
             max_tokens=1000,
@@ -117,13 +118,13 @@ def common_openai_call(
                 {"role": "user", "content": prompt}
             ]
         )
-    except openai.error.OpenAIError as e:
+    except openai.OpenAIError as e:
         raise HTTPException(
             status_code=500,
             detail=f"OpenAI error: {e}"
         )
 
-    res = response['choices'][0]['message']['content']
+    res = response.choices[0].message.content
     latency = datetime.now() - start_time
     _logger.info(
         f"Request {request_id}:"

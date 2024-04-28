@@ -1,5 +1,5 @@
 
-from models import DivinationBody
+from src.models import DivinationBody
 from typing import Optional
 
 

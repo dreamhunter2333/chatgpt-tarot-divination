@@ -6,8 +6,8 @@ import jwt
 from fastapi import Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from config import settings
-from models import User
+from src.config import settings
+from src.models import User
 from fastapi import HTTPException
 
 _logger = logging.getLogger(__name__)

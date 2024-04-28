@@ -1,22 +1,22 @@
 import json
 from typing import Optional
 from fastapi.responses import StreamingResponse
-import openai
+from openai import OpenAI
+
 import logging
 
 from fastapi import Depends, HTTPException, Request, status
 
 
-from config import settings
+from src.config import settings
 from fastapi import APIRouter
 
-from models import DivinationBody, User
+from src.models import DivinationBody, User
 from src.user import get_user
-from .limiter import get_real_ipaddr, limiter
-from .divination import DivinationFactory
+from src.limiter import get_real_ipaddr, check_rate_limit
+from src.divination import DivinationFactory
 
-openai.api_key = settings.api_key
-openai.api_base = settings.api_base
+client = OpenAI(api_key=settings.api_key, base_url=settings.api_base)
 router = APIRouter()
 _logger = logging.getLogger(__name__)
 STOP_WORDS = [
@@ -26,25 +26,6 @@ STOP_WORDS = [
 ]
 
 
-@limiter.limit(settings.rate_limit)
-def limit_when_not_login(request: Request):
-    """
-    Limit when not login
-    """
-
-
-def limit_when_login(request: Request, user: User):
-    """
-    Limit when login
-    """
-    @limiter.limit(settings.user_rate_limit, key_func=lambda: (user.user_name, user.login_type))
-    def limit(request: Request):
-        """
-        Limit when login
-        """
-    limit(request)
-
-
 @router.post("/api/divination")
 async def divination(
         request: Request,
@@ -52,14 +33,21 @@ async def divination(
         user: Optional[User] = Depends(get_user)
 ):
 
+    real_ip = get_real_ipaddr(request)
     # rate limit when not login
     if not user:
-        limit_when_not_login(request)
+        max_reqs, time_window_seconds = settings.rate_limit
+        check_rate_limit(real_ip, time_window_seconds, max_reqs)
     else:
-        limit_when_login(request, user)
+        max_reqs, time_window_seconds = settings.user_rate_limit
+        check_rate_limit(
+            f"{user.login_type}:{user.user_name}", time_window_seconds, max_reqs
+        )
 
     _logger.info(
-        f"Request from {get_real_ipaddr(request)}, user={user.json(ensure_ascii=False) if user else None} body={divination_body.json(ensure_ascii=False)}"
+        f"Request from {real_ip}, "
+        f"user={user.model_dump_json(context=dict(ensure_ascii=False)) if user else None}, "
+        f"body={divination_body.model_dump_json(context=dict(ensure_ascii=False))}"
     )
     if any(w in divination_body.prompt.lower() for w in STOP_WORDS):
         raise HTTPException(
@@ -75,7 +63,11 @@ async def divination(
     prompt, system_prompt = divination_obj.build_prompt(divination_body)
 
     def get_openai_generator():
-        openai_stream = openai.ChatCompletion.create(
+        for i in range(100):
+            contet = f'{i}'
+            yield f"data: {json.dumps(contet)}\n\n"
+        return
+        openai_stream = client.chat.completions.create(
             model=settings.model,
             max_tokens=1000,
             temperature=0.9,
@@ -90,8 +82,8 @@ async def divination(
             ]
         )
         for event in openai_stream:
-            if "content" in event["choices"][0].delta:
-                current_response = event["choices"][0].delta.content
+            if event.choices and event.choices[0].delta and event.choices[0].delta.content:
+                current_response = event.choices[0].delta.content
                 yield f"data: {json.dumps(current_response)}\n\n"
 
     return StreamingResponse(get_openai_generator(), media_type='text/event-stream')

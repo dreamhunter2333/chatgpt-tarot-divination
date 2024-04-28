@@ -65,8 +65,8 @@ const onSubmit = async () => {
       async onopen(response) {
         if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
           return;
-        } else if (response.status >= 400 && response.status < 500 && response.status !== 429) {
-          throw new Error(`占卜失败: ${response.status}`);
+        } else if (response.status >= 400 && response.status < 500) {
+          throw new Error(`${response.status} ${await response.text()}`);
         }
       },
       onmessage(msg) {

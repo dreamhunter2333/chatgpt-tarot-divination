@@ -1,7 +1,7 @@
-fastapi==0.95.0
-python-dotenv==1.0.0
-uvicorn==0.21.1
-openai==0.27.4
-python-multipart==0.0.6
-slowapi==0.1.8
-pyjwt==2.7.0
+fastapi==0.110.2
+pydantic-settings==2.2.1
+pydantic==2.7.1
+uvicorn==0.29.0
+openai==1.23.6
+pyjwt==2.8.0
+requests==2.31.0
