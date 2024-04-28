@@ -63,10 +63,6 @@ async def divination(
     prompt, system_prompt = divination_obj.build_prompt(divination_body)
 
     def get_openai_generator():
-        for i in range(100):
-            contet = f'{i}'
-            yield f"data: {json.dumps(contet)}\n\n"
-        return
         openai_stream = client.chat.completions.create(
             model=settings.model,
             max_tokens=1000,
