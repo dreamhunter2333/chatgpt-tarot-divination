@@ -35,14 +35,15 @@ async def divination(
 
     real_ip = get_real_ipaddr(request)
     # rate limit when not login
-    if not user:
-        max_reqs, time_window_seconds = settings.rate_limit
-        check_rate_limit(real_ip, time_window_seconds, max_reqs)
-    else:
-        max_reqs, time_window_seconds = settings.user_rate_limit
-        check_rate_limit(
-            f"{user.login_type}:{user.user_name}", time_window_seconds, max_reqs
-        )
+    if settings.enable_rate_limit:
+        if not user:
+            max_reqs, time_window_seconds = settings.rate_limit
+            check_rate_limit(real_ip, time_window_seconds, max_reqs)
+        else:
+            max_reqs, time_window_seconds = settings.user_rate_limit
+            check_rate_limit(
+                f"{user.login_type}:{user.user_name}", time_window_seconds, max_reqs
+            )
 
     _logger.info(
         f"Request from {real_ip}, "

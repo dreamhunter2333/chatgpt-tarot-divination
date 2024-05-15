@@ -32,6 +32,8 @@ async def info(user: Optional[User] = Depends(get_user)):
         ad_slot=settings.ad_slot,
         rate_limit=settings.get_human_rate_limit(),
         user_rate_limit=settings.get_human_user_rate_limit(),
+        enable_login=bool(settings.github_client_id),
+        enable_rate_limit=settings.enable_rate_limit
     )
 
 
