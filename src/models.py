@@ -9,6 +9,8 @@ class SettingsInfo(BaseModel):
     user_rate_limit: str
     ad_client: str = ""
     ad_slot: str = ""
+    enable_login: bool = False
+    enable_rate_limit: bool = False
 
 
 class OauthBody(BaseModel):

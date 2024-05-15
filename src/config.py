@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     api_key: str = Field(default="sk-xxx", exclude=True)
     api_base: str = "https://api.openai.com/v1"
     model: str = "gpt-3.5-turbo"
+    enable_rate_limit: bool = True
     # rate limit xxx request per xx seconds
     rate_limit: Tuple[int, int] = (60, 60 * 60)
     user_rate_limit: Tuple[int, int] = (600, 60 * 60)

@@ -45,6 +45,8 @@ const fetchSettings = async () => {
   }
 }
 
+const showAd = computed(() => !isMobile.value && settings.value.ad_client);
+
 onMounted(async () => {
   await fetchSettings();
   if (!isMobile.value && settings.value.ad_client) {
@@ -59,14 +61,14 @@ onMounted(async () => {
     <n-spin description="加载中..." :show="loading">
       <n-global-style />
       <n-message-provider>
-        <n-grid :x-gap="12" :cols="isMobile ? 4 : 6">
-          <n-gi v-if="!isMobile">
-            <div class="side">
+        <n-grid :x-gap="12" :cols="isMobile ? 6 : 8">
+          <n-gi :span="1">
+            <div class="side" v-if="showAd">
               <ins class="adsbygoogle" style="display:block" :data-ad-client="settings.ad_client"
                 :data-ad-slot="settings.ad_slot" data-ad-format="auto" data-full-width-responsive="true"></ins>
             </div>
           </n-gi>
-          <n-gi :span="4">
+          <n-gi :span="6">
             <div class="main">
               <n-page-header :subtitle="isMobile ? '' : '本项目仅供娱乐'">
                 <template #title>
@@ -74,8 +76,10 @@ onMounted(async () => {
                 </template>
                 <template #extra>
                   <n-space>
-                    <n-button v-if="settings.user_name" @click="logOut">登出</n-button>
-                    <n-button v-else type="primary" @click="router.push('/login')">登录</n-button>
+                    <div v-if="settings.enable_login">
+                      <n-button v-if="settings.user_name" @click="logOut">登出</n-button>
+                      <n-button v-else type="primary" @click="router.push('/login')">登录</n-button>
+                    </div>
                     <n-button @click="themeStorage = (themeStorage == 'dark' ? 'light' : 'dark')">
                       {{ themeStorage == 'dark' ? '亮色' : '暗色' }}
                     </n-button>
@@ -89,7 +93,7 @@ onMounted(async () => {
                   <n-alert v-if="settings.user_name" type="success">
                     你好, {{ settings.login_type }} 用户 {{ settings.user_name }}
                   </n-alert>
-                  <n-alert v-else type="warning">
+                  <n-alert v-else-if="settings.enable_login && settings.enable_rate_limit" type="warning">
                     当前未登录, 处于限流模式 ({{ settings.rate_limit }})
                   </n-alert>
                 </template>
@@ -98,7 +102,7 @@ onMounted(async () => {
             </div>
           </n-gi>
           <n-gi :span="1" v-if="!isMobile">
-            <div class="side">
+            <div class="side" v-if="showAd">
               <ins class="adsbygoogle" style="display:block" :data-ad-client="settings.ad_client"
                 :data-ad-slot="settings.ad_slot" data-ad-format="auto" data-full-width-responsive="true"></ins>
             </div>
