@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build --mode prod",
+    "build:tauri": "vite build --mode tauri",
     "preview": "vite preview"
   },
   "dependencies": {

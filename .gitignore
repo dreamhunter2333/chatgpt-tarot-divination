@@ -167,3 +167,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 .vercel
+.zeabur/
+worker/
+src-tauri/bin/
