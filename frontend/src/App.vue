@@ -7,11 +7,12 @@ import { onMounted, ref, computed } from "vue";
 import { useRouter } from 'vue-router'
 import { useStorage } from '@vueuse/core'
 import { useIsMobile } from './utils/composables'
+import { useGlobalState } from './store'
 
+const { isDark, toggleDark } = useGlobalState()
 const state_jwt = useStorage('jwt')
-const themeStorage = useStorage('theme', 'light')
 const isMobile = useIsMobile()
-const theme = computed(() => themeStorage.value == 'dark' ? darkTheme : null)
+const theme = computed(() => isDark.value ? darkTheme : null)
 
 const router = useRouter()
 const settings = ref({});
@@ -80,8 +81,10 @@ onMounted(async () => {
                       <n-button v-if="settings.user_name" @click="logOut">登出</n-button>
                       <n-button v-else type="primary" @click="router.push('/login')">登录</n-button>
                     </div>
-                    <n-button @click="themeStorage = (themeStorage == 'dark' ? 'light' : 'dark')">
-                      {{ themeStorage == 'dark' ? '亮色' : '暗色' }}
+                    <n-button @click="router.push('/')">主页</n-button>
+                    <n-button @click="router.push('/settings')">设置</n-button>
+                    <n-button @click="toggleDark()">
+                      {{ isDark ? '亮色' : '暗色' }}
                     </n-button>
                     <n-button type="primary" ghost tag="a" target="_blank"
                       href="https://github.com/dreamhunter2333/chatgpt-tarot-divination">

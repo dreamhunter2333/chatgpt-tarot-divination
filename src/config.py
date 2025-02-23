@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
-    api_key: str = Field(default="sk-xxx", exclude=True)
+    api_key: str = Field(default="", exclude=True)
     api_base: str = "https://api.openai.com/v1"
     model: str = "gpt-3.5-turbo"
     enable_rate_limit: bool = True

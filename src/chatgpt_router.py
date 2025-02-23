@@ -63,9 +63,26 @@ async def divination(
         )
     prompt, system_prompt = divination_obj.build_prompt(divination_body)
 
+    # custom api key, model and base url support
+    custom_base_url = request.headers.get("x-api-url")
+    custom_api_key = request.headers.get("x-api-key")
+    custom_api_model = request.headers.get("x-api-model")
+    api_client = client
+    api_model = custom_api_model if custom_api_model else settings.model
+    if custom_base_url and custom_api_key:
+        api_client = OpenAI(api_key=custom_api_key, base_url=custom_base_url)
+    elif custom_api_key:
+        api_client = OpenAI(api_key=custom_api_key, base_url=settings.api_base)
+
+    if not (settings.api_base or custom_base_url) or not (settings.api_key or custom_api_key):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="请设置 API KEY 和 API BASE URL"
+        )
+
     def get_openai_generator():
-        openai_stream = client.chat.completions.create(
-            model=settings.model,
+        openai_stream = api_client.chat.completions.create(
+            model=api_model,
             max_tokens=1000,
             temperature=0.9,
             top_p=1,

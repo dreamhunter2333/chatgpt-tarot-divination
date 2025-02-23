@@ -8,7 +8,6 @@ from fastapi.staticfiles import StaticFiles
 
 from src.limiter import get_real_ipaddr
 from src.chatgpt_router import router as chatgpt_router
-from src.divination_router import router as divination_router
 from src.user_router import router as user_router
 
 
@@ -17,18 +16,13 @@ _logger = logging.getLogger(__name__)
 app = FastAPI(title="Chatgpt Divination API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost",
-        "http://127.0.0.1"
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(chatgpt_router)
-app.include_router(divination_router)
 app.include_router(user_router)
 
 if os.path.exists("dist"):
@@ -42,6 +36,11 @@ if os.path.exists("dist"):
         )
 
     app.mount("/", StaticFiles(directory="dist"), name="static")
+
+
+@app.get("/health")
+async def health():
+    return "ok"
 
 
 @app.exception_handler(Exception)

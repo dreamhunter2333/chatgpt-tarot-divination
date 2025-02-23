@@ -11,7 +11,9 @@ import { Solar } from 'lunar-javascript'
 
 import { useIsMobile } from '../utils/composables'
 import About from '../components/About.vue'
+import { useGlobalState } from '../store'
 
+const { customOpenAISettings } = useGlobalState()
 import { DIVINATION_OPTIONS } from "../config/constants";
 const isMobile = useIsMobile()
 
@@ -25,6 +27,7 @@ const lunarBirthday = ref("");
 const birthday = useStorage("birthday", "2000-08-17 00:00:00");
 const loading = ref(false);
 const API_BASE = import.meta.env.VITE_API_BASE || "";
+const IS_TAURI = import.meta.env.VITE_IS_TAURI || "";
 const md = new MarkdownIt();
 const showDrawer = ref(false)
 const sex = ref("")
@@ -43,6 +46,18 @@ const onSubmit = async () => {
     tmp_result.value = "";
     result.value = "";
     showDrawer.value = true;
+    const headers = {
+      "Authorization": `Bearer ${state_jwt.value || "xxx"}`,
+      "Content-Type": "application/json"
+    }
+    if (customOpenAISettings.value.enable) {
+      headers["x-api-key"] = customOpenAISettings.value.apiKey;
+      headers["x-api-url"] = customOpenAISettings.value.baseUrl
+      headers["x-api-model"] = customOpenAISettings.value.model
+    } else if (IS_TAURI) {
+      result.value = "请在设置中配置 API BASE URL 和 API KEY";
+      return;
+    }
     await fetchEventSource(`${API_BASE}/api/divination`, {
       method: "POST",
       body: JSON.stringify({
@@ -58,10 +73,7 @@ const onSubmit = async () => {
         plum_flower: prompt_type.value == "plum_flower" ? plum_flower.value : null,
         fate: prompt_type.value == "fate" ? fate_body.value : null
       }),
-      headers: {
-        "Authorization": `Bearer ${state_jwt.value || "xxx"}`,
-        "Content-Type": "application/json"
-      },
+      headers: headers,
       async onopen(response) {
         if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
           return;
