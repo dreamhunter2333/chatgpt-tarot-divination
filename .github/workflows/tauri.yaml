@@ -1,3 +1,5 @@
+name: "Build Tauri App"
+
 on:
   push:
     tags:
