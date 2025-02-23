@@ -2,6 +2,7 @@
 
 - [chatgpt tarot divination](#chatgpt-tarot-divination)
   - [AI 算命，占卜 功能](#ai-算命占卜-功能)
+  - [下载 EXE 安装包](#下载-exe-安装包)
   - [Deploy by docker](#deploy-by-docker)
   - [Local Run](#local-run)
 
@@ -16,6 +17,12 @@
 - [x] 姻缘 [@alongLFB](https://github.com/alongLFB)
 
 ![demo](assets/demo.png)
+
+## 下载 EXE 安装包
+
+[下载 exe](https://github.com/dreamhunter2333/chatgpt-tarot-divination/releases/tag/latest)
+
+设置中指定 API BASE URL, API KEY, 然后在主页就可以正常使用了
 
 ## Deploy by docker
 
