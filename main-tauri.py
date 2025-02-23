@@ -41,4 +41,4 @@ def start_input_thread():
 
 if __name__ == "__main__":
     start_input_thread()
-    uvicorn.run(app, host="0.0.0.0", port=12333)
+    uvicorn.run(app, port=12333)
