@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.2.10",
+    "vite": "^5.4.16",
     "vite-plugin-pwa": "^0.19.8",
     "workbox-window": "^7.1.0"
   }
