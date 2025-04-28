@@ -62,14 +62,14 @@ onMounted(async () => {
     <n-spin description="加载中..." :show="loading">
       <n-global-style />
       <n-message-provider>
-        <n-grid :x-gap="12" :cols="isMobile ? 6 : 8">
+        <n-grid :x-gap="12" :cols="isMobile ? 4 : 6">
           <n-gi :span="1">
             <div class="side" v-if="showAd">
               <ins class="adsbygoogle" style="display:block" :data-ad-client="settings.ad_client"
                 :data-ad-slot="settings.ad_slot" data-ad-format="auto" data-full-width-responsive="true"></ins>
             </div>
           </n-gi>
-          <n-gi :span="6">
+          <n-gi :span="4">
             <div class="main">
               <n-page-header :subtitle="isMobile ? '' : '本项目仅供娱乐'">
                 <template #title>
