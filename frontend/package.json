@@ -11,18 +11,19 @@
   },
   "dependencies": {
     "@microsoft/fetch-event-source": "^2.0.1",
-    "@vueuse/core": "^10.9.0",
-    "lunar-javascript": "^1.6.12",
+    "@vueuse/core": "^13.1.0",
+    "lunar-javascript": "^1.7.2",
     "markdown-it": "^14.1.0",
-    "naive-ui": "2.38.1",
+    "naive-ui": "2.41.0",
     "vooks": "^0.2.12",
-    "vue": "^3.4.25",
-    "vue-router": "^4.3.2"
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.2.10",
-    "vite-plugin-pwa": "^0.19.8",
-    "workbox-window": "^7.1.0"
-  }
+    "@vitejs/plugin-vue": "^5.2.3",
+    "vite": "^6.3.3",
+    "vite-plugin-pwa": "^1.0.0",
+    "workbox-window": "^7.3.0"
+  },
+  "packageManager": "pnpm@10.10.0+sha512.d615db246fe70f25dcfea6d8d73dee782ce23e2245e3c4f6f888249fb568149318637dca73c2c5c8ef2a4ca0d5657fb9567188bfab47f566d1ee6ce987815c39"
 }
