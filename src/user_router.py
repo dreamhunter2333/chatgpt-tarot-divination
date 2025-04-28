@@ -70,7 +70,7 @@ async def oauth(oauth_body: OauthBody):
                     datetime.datetime.now() +
                     datetime.timedelta(days=30)
                 ).timestamp(),
-            ).dict(),
+            ).model_dump(),
             settings.jwt_secret, algorithm="HS256"
         )
     raise HTTPException(status_code=400, detail="Login type not supported")

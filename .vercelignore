@@ -1,0 +1,4 @@
+venv/
+worker/
+src-tauri/
+frontend/node_modules/
