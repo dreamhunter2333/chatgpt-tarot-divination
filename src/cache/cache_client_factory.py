@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 
-from cache.base import CacheClientBase, MetaCacheClient
-from config import settings
+from .base import CacheClientBase, MetaCacheClient
+from src.config import settings
 
 
 class CacheClientFactory:

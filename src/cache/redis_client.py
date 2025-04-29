@@ -5,7 +5,7 @@ import logging
 
 from typing import Optional
 
-from config import settings
+from src.config import settings
 
 from .base import CacheClientBase
 
