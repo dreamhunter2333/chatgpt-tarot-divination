@@ -38,11 +38,11 @@ async def divination(
     if settings.enable_rate_limit:
         if not user:
             max_reqs, time_window_seconds = settings.rate_limit
-            check_rate_limit(real_ip, time_window_seconds, max_reqs)
+            check_rate_limit(f"{settings.project_name}:{real_ip}", time_window_seconds, max_reqs)
         else:
             max_reqs, time_window_seconds = settings.user_rate_limit
             check_rate_limit(
-                f"{user.login_type}:{user.user_name}", time_window_seconds, max_reqs
+                f"{settings.project_name}:{user.login_type}:{user.user_name}", time_window_seconds, max_reqs
             )
 
     _logger.info(

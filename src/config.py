@@ -8,6 +8,10 @@ _logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
+
+    # project settings
+    project_name: str = "ai-divination"
+
     # OpenAI API settings
     api_key: str = Field(default="", exclude=True)
     api_base: str = "https://api.openai.com/v1"
