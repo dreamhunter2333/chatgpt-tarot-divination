@@ -6,7 +6,7 @@ from typing import Optional
 from fastapi import HTTPException
 import requests
 
-from config import settings
+from src.config import settings
 
 from .base import CacheClientBase
 
