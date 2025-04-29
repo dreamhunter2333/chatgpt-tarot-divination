@@ -170,3 +170,4 @@ cython_debug/
 .zeabur/
 worker/
 src-tauri/bin/
+src-tauri/Cargo.lock
