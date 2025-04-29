@@ -52,6 +52,7 @@ class RedisCacheClient(CacheClientBase):
             cls.init_redis()
             cls.redis_client.zremrangebyscore(key, "-inf", cur_timestamp - time_window_seconds)
             cls.redis_client.zadd(key, {cur_timestamp: cur_timestamp})
+            cls.redis_client.expire(key, time_window_seconds)
             req_count = cls.redis_client.zcard(key)
             if req_count >= max_requests:
                 raise HTTPException(

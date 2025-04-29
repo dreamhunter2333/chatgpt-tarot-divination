@@ -66,6 +66,7 @@ class UpstashCacheClient(CacheClientBase):
                 data="["
                 f'["ZREMRANGEBYSCORE", "{key}", "-inf", {cur_timestamp - time_window_seconds}],'
                 f'["ZADD", "{key}", {cur_timestamp}, {cur_timestamp}],'
+                f'["EXPIRE", "{key}", {time_window_seconds}],'
                 f'["ZCARD", "{key}"]'
                 "]",
                 headers={
