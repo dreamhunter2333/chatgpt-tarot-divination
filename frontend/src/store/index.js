@@ -8,15 +8,20 @@ export const useGlobalState = createGlobalState(
         const isDark = useDark()
         const toggleDark = useToggle(isDark)
         const loading = ref(false);
-        const customOpenAISettings = useLocalStorage('customOpenAISettings', {
+        const settings = ref({
+            fetched: false,
+            error: null
+        });
+        const customOpenAISettings = useLocalStorage('customOpenAISettingsStorage', {
             enable: false,
-            baseUrl: 'https://api.openai.com/v1',
+            baseUrl: '',
             apiKey: '',
-            model: 'gpt-3.5-turbo',
+            model: '',
         });
         return {
             isDark,
             toggleDark,
+            settings,
             customOpenAISettings,
         }
     },

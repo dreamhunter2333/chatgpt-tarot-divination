@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     ad_client: str = ""
     ad_slot: str = ""
 
+    # openai settings defaults
+    default_api_base: str = "https://api.openai.com/v1"
+    default_model: str = "gpt-3.5-turbo"
+    purchase_url: str = ""
+
     # cache settings
     cache_client_type: str = "memory"
     redis_url: str = Field(default="", exclude=True, alias="KV_URL")

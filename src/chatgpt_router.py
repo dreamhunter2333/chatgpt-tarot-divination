@@ -80,7 +80,7 @@ async def divination(
             detail="请设置 API KEY 和 API BASE URL"
         )
 
-    def get_openai_generator():
+    try:
         openai_stream = api_client.chat.completions.create(
             model=api_model,
             max_tokens=1000,
@@ -95,9 +95,21 @@ async def divination(
                 {"role": "user", "content": prompt}
             ]
         )
-        for event in openai_stream:
-            if event.choices and event.choices[0].delta and event.choices[0].delta.content:
-                current_response = event.choices[0].delta.content
-                yield f"data: {json.dumps(current_response)}\n\n"
+    except Exception as e:
+        _logger.error(f"OpenAI API error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"OpenAI API error: {str(e)}"
+        )
+
+    def get_openai_generator():
+        try:
+            for event in openai_stream:
+                if event.choices and event.choices[0].delta and event.choices[0].delta.content:
+                    current_response = event.choices[0].delta.content
+                    yield f"data: {json.dumps(current_response)}\n\n"
+        except Exception as e:
+            _logger.error(f"Streaming error: {e}")
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
     return StreamingResponse(get_openai_generator(), media_type='text/event-stream')
