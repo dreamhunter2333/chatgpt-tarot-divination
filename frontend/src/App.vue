@@ -9,13 +9,12 @@ import { useStorage } from '@vueuse/core'
 import { useIsMobile } from './utils/composables'
 import { useGlobalState } from './store'
 
-const { isDark, toggleDark } = useGlobalState()
+const { isDark, toggleDark, settings } = useGlobalState()
 const state_jwt = useStorage('jwt')
 const isMobile = useIsMobile()
 const theme = computed(() => isDark.value ? darkTheme : null)
 
 const router = useRouter()
-const settings = ref({});
 const loading = ref(false);
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
@@ -37,11 +36,19 @@ const fetchSettings = async () => {
     });
     if (response.ok) {
       settings.value = await response.json();
+    } else {
+      settings.value = {
+        error: `Failed to fetch settings: ${response.status} ${response.statusText}`
+      };
     }
   } catch (error) {
     console.error(error);
+    settings.value = {
+      error: `Failed to fetch settings: ${error.message}`
+    };
   }
   finally {
+    settings.value.fetched = true;
     loading.value = false;
   }
 }
@@ -94,14 +101,17 @@ onMounted(async () => {
                 </template>
                 <template #footer>
                   <n-alert v-if="settings.user_name" type="success">
-                    你好, {{ settings.login_type }} 用户 {{ settings.user_name }}
+                    你好, {{ settings.login_type }} 用户 {{ settings.user_name }} 可在设置中自定义 API KEY 以解除限流
                   </n-alert>
                   <n-alert v-else-if="settings.enable_login && settings.enable_rate_limit" type="warning">
-                    当前未登录, 处于限流模式 ({{ settings.rate_limit }})
+                    当前未登录, 处于限流模式 ({{ settings.rate_limit }}) 可在设置中自定义 API KEY 以解除限流
                   </n-alert>
                 </template>
               </n-page-header>
-              <router-view></router-view>
+              <router-view v-if="settings.fetched && !settings.error"></router-view>
+              <n-alert v-else-if="settings.error" type="error" title="加载设置失败">
+                {{ settings.error }}
+              </n-alert>
             </div>
           </n-gi>
           <n-gi :span="1" v-if="!isMobile">

@@ -1,7 +1,7 @@
 <script setup>
 import {
   NInput, NButton, NCard, NDatePicker, NSelect, NFormItem,
-  NInputNumber, NTabs, NTabPane, NDrawer, NDrawerContent
+  NInputNumber, NTabs, NTabPane, NDrawer, NDrawerContent, NSpin
 } from 'naive-ui'
 import { watch, ref, onMounted } from "vue";
 import MarkdownIt from 'markdown-it';
@@ -26,6 +26,7 @@ const menu_type = useStorage("menu_type", "divination");
 const lunarBirthday = ref("");
 const birthday = useStorage("birthday", "2000-08-17 00:00:00");
 const loading = ref(false);
+const resultLoading = ref(false);
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 const IS_TAURI = import.meta.env.VITE_IS_TAURI || "";
 const md = new MarkdownIt();
@@ -43,6 +44,7 @@ const fate_body = useStorage("fate_body", { name1: "", name2: "" })
 const onSubmit = async () => {
   try {
     loading.value = true;
+    resultLoading.value = true;
     tmp_result.value = "";
     result.value = "";
     showDrawer.value = true;
@@ -56,6 +58,7 @@ const onSubmit = async () => {
       headers["x-api-model"] = customOpenAISettings.value.model
     } else if (IS_TAURI) {
       result.value = "请在设置中配置 API BASE URL 和 API KEY";
+      resultLoading.value = false;
       return;
     }
     await fetchEventSource(`${API_BASE}/api/divination`, {
@@ -77,7 +80,7 @@ const onSubmit = async () => {
       async onopen(response) {
         if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
           return;
-        } else if (response.status >= 400 && response.status < 500) {
+        } else if (response.status >= 400) {
           throw new Error(`${response.status} ${await response.text()}`);
         }
       },
@@ -91,6 +94,9 @@ const onSubmit = async () => {
         try {
           tmp_result.value += JSON.parse(msg.data);
           result.value = md.render(tmp_result.value);
+          if (resultLoading.value) {
+            resultLoading.value = false;
+          }
         } catch (error) {
           console.error(error);
         }
@@ -108,6 +114,7 @@ const onSubmit = async () => {
     result.value = error.message || "占卜失败";
   } finally {
     loading.value = false;
+    resultLoading.value = false;
   }
 };
 
@@ -242,7 +249,9 @@ onMounted(async () => {
     <n-drawer v-model:show="showDrawer" style="height: 80vh;" placement="bottom" :trap-focus="false"
       :block-scroll="false">
       <n-drawer-content title="占卜结果" closable>
-        <div class="result" v-html="result"></div>
+        <n-spin :show="resultLoading" description="占卜中..." style="min-height: 200px;">
+          <div class="result" v-html="result"></div>
+        </n-spin>
       </n-drawer-content>
     </n-drawer>
   </div>

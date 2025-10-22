@@ -11,6 +11,9 @@ class SettingsInfo(BaseModel):
     ad_slot: str = ""
     enable_login: bool = False
     enable_rate_limit: bool = False
+    default_api_base: str = ""
+    default_model: str = ""
+    purchase_url: str = ""
 
 
 class OauthBody(BaseModel):
