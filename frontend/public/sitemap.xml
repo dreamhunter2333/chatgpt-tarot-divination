@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- 首页 -->
+  <url>
+    <loc>https://divination.app.awsl.uk/</loc>
+    <lastmod>2025-12-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- 塔罗牌占卜 -->
+  <url>
+    <loc>https://divination.app.awsl.uk/divination/tarot</loc>
+    <lastmod>2025-12-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 生辰八字 -->
+  <url>
+    <loc>https://divination.app.awsl.uk/divination/birthday</loc>
+    <lastmod>2025-12-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 周公解梦 -->
+  <url>
+    <loc>https://divination.app.awsl.uk/divination/dream</loc>
+    <lastmod>2025-12-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 姓名五格 -->
+  <url>
+    <loc>https://divination.app.awsl.uk/divination/name</loc>
+    <lastmod>2025-12-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 起名取名 -->
+  <url>
+    <loc>https://divination.app.awsl.uk/divination/new_name</loc>
+    <lastmod>2025-12-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 梅花易数 -->
+  <url>
+    <loc>https://divination.app.awsl.uk/divination/plum_flower</loc>
+    <lastmod>2025-12-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 姻缘配对 -->
+  <url>
+    <loc>https://divination.app.awsl.uk/divination/fate</loc>
+    <lastmod>2025-12-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 关于页面 -->
+  <url>
+    <loc>https://divination.app.awsl.uk/about</loc>
+    <lastmod>2025-12-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- 设置页面 -->
+  <url>
+    <loc>https://divination.app.awsl.uk/settings</loc>
+    <lastmod>2025-12-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

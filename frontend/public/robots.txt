@@ -1,0 +1,10 @@
+# robots.txt for AI Divination
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://divination.app.awsl.uk/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
