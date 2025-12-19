@@ -78,21 +78,27 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const showAd = !isMobile && settings.ad_client && settings.ad_slot
+
   useEffect(() => {
-    if (!isMobile && settings.ad_client) {
-      // @ts-ignore
-      ;(window.adsbygoogle = window.adsbygoogle || []).push({})
-      // @ts-ignore
-      ;(window.adsbygoogle = window.adsbygoogle || []).push({})
+    if (showAd && settings.fetched) {
+      try {
+        // 为左侧广告 push
+        // @ts-ignore
+        ;(window.adsbygoogle = window.adsbygoogle || []).push({})
+        // 为右侧广告 push
+        // @ts-ignore
+        ;(window.adsbygoogle = window.adsbygoogle || []).push({})
+      } catch (e) {
+        console.error('AdSense error:', e)
+      }
     }
-  }, [isMobile, settings.ad_client])
+  }, [showAd, settings.fetched])
 
   const logOut = () => {
     setJwt('')
     window.location.reload()
   }
-
-  const showAd = !isMobile && settings.ad_client
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -114,24 +120,24 @@ function App() {
         </div>
       )}
 
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-          {showAd && (
-            <div className="hidden md:block md:col-span-1">
-              <div className="sticky top-4 h-screen">
-                <ins
-                  className="adsbygoogle"
-                  style={{ display: 'block' }}
-                  data-ad-client={settings.ad_client}
-                  data-ad-slot={settings.ad_slot}
-                  data-ad-format="auto"
-                  data-full-width-responsive="true"
-                ></ins>
-              </div>
-            </div>
-          )}
+      <div className="w-full">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-0">
+          {/* 左侧广告区域 - 桌面端 */}
+          <div className="hidden md:block md:col-span-1">
+            {showAd && (
+              <ins
+                className="adsbygoogle sticky top-4"
+                style={{ display: 'block', minHeight: '600px' }}
+                data-ad-client={settings.ad_client}
+                data-ad-slot={settings.ad_slot}
+                data-ad-format="auto"
+                data-full-width-responsive="true"
+              ></ins>
+            )}
+          </div>
 
-          <div className={showAd ? 'md:col-span-4' : 'md:col-span-6'}>
+          {/* 中间内容区域 */}
+          <div className="md:col-span-4 px-4">
             <div className="py-3 md:py-6">
               {/* 现代化头部 */}
               <div className="backdrop-blur-lg bg-card/50 rounded-2xl shadow-lg border p-3 md:p-6 mb-4 md:mb-6 transition-all hover:shadow-xl">
@@ -327,20 +333,19 @@ function App() {
             </div>
           </div>
 
-          {showAd && (
-            <div className="hidden md:block md:col-span-1">
-              <div className="sticky top-4 h-screen">
-                <ins
-                  className="adsbygoogle"
-                  style={{ display: 'block' }}
-                  data-ad-client={settings.ad_client}
-                  data-ad-slot={settings.ad_slot}
-                  data-ad-format="auto"
-                  data-full-width-responsive="true"
-                ></ins>
-              </div>
-            </div>
-          )}
+          {/* 右侧广告区域 - 桌面端 */}
+          <div className="hidden md:block md:col-span-1">
+            {showAd && (
+              <ins
+                className="adsbygoogle sticky top-4"
+                style={{ display: 'block', minHeight: '600px' }}
+                data-ad-client={settings.ad_client}
+                data-ad-slot={settings.ad_slot}
+                data-ad-format="auto"
+                data-full-width-responsive="true"
+              ></ins>
+            )}
+          </div>
         </div>
       </div>
       <Toaster />
