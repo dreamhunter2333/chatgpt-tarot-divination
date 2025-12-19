@@ -3,7 +3,7 @@ import logging
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse, FileResponse
+from fastapi.responses import PlainTextResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from src.limiter import get_real_ipaddr
@@ -45,7 +45,22 @@ async def health():
 
 @app.exception_handler(Exception)
 async def exception_handler(request: Request, exc: Exception):
-    return PlainTextResponse(
+    """全局异常处理器"""
+    # 记录详细错误日志用于调试
+    _logger.error(
+        f"Unhandled exception: {exc}",
+        exc_info=True,
+        extra={
+            "request_path": request.url.path,
+            "request_method": request.method,
+            "client_ip": get_real_ipaddr(request)
+        }
+    )
+
+    # 直接返回原始错误信息
+    return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=f"Internal Server Error: {exc}",
+        content={
+            "error": str(exc)
+        },
     )
