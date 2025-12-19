@@ -1,10 +1,7 @@
 import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Sparkles, X, Settings } from 'lucide-react'
+import { Sparkles, X } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useNavigate } from 'react-router-dom'
-import { useGlobalState } from '@/store'
 
 interface ResultDrawerProps {
   show: boolean
@@ -16,8 +13,6 @@ interface ResultDrawerProps {
 
 export function ResultDrawer({ show, onClose, result, loading, streaming }: ResultDrawerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const navigate = useNavigate()
-  const { settings } = useGlobalState()
   const [isAnimating, setIsAnimating] = useState(false)
 
   // 控制入场动画
