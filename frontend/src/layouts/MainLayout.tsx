@@ -104,7 +104,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
                                     {settings.enable_login && (
                                         settings.user_name ? (
-                                            <Button variant="ghost" size="sm" onClick={logOut} className="gap-2">
+                                            <Button variant="ghost" size="sm" onClick={logOut} className="gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
                                                 <LogOut className="h-4 w-4" />
                                                 <span className="hidden sm:inline">登出</span>
                                             </Button>
