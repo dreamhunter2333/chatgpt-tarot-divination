@@ -52,7 +52,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-secondary/10 rounded-full blur-[80px] animate-pulse delay-1000" />
             </div>
 
-            <div className="container mx-auto px-2 md:px-4 py-4 md:py-6 max-w-[1600px]">
+            <div className="w-full px-4 md:px-8 py-4 md:py-6">
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
 
                     {/* Left Ad Column */}
