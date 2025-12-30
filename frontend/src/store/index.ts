@@ -1,4 +1,5 @@
-import { useLocalStorage } from '@/hooks'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 interface CustomOpenAISettings {
   enable: boolean
@@ -22,32 +23,33 @@ interface Settings {
   purchase_url?: string
 }
 
-// Custom hooks for global state management
-export function useGlobalState() {
-  const [isDark, setIsDark] = useLocalStorage('theme-dark', false)
-  const [jwt, setJwt] = useLocalStorage('jwt', '')
-  const [settings, setSettings] = useLocalStorage<Settings>('settings', {
-    fetched: false,
-    error: null,
-  })
-  const [customOpenAISettings, setCustomOpenAISettings] =
-    useLocalStorage<CustomOpenAISettings>('customOpenAISettingsStorage', {
-      enable: false,
-      baseUrl: '',
-      apiKey: '',
-      model: '',
-    })
-
-  const toggleDark = () => setIsDark(!isDark)
-
-  return {
-    isDark,
-    toggleDark,
-    jwt,
-    setJwt,
-    settings,
-    setSettings,
-    customOpenAISettings,
-    setCustomOpenAISettings,
-  }
+interface GlobalState {
+  isDark: boolean
+  jwt: string
+  settings: Settings
+  customOpenAISettings: CustomOpenAISettings
+  toggleDark: () => void
+  setJwt: (jwt: string) => void
+  setSettings: (settings: Partial<Settings>) => void
+  setCustomOpenAISettings: (settings: Partial<CustomOpenAISettings>) => void
 }
+
+export const useGlobalState = create<GlobalState>()(
+  persist(
+    (set) => ({
+      isDark: false,
+      jwt: '',
+      settings: { fetched: false, error: null },
+      customOpenAISettings: { enable: false, baseUrl: '', apiKey: '', model: '' },
+      toggleDark: () => set((state) => ({ isDark: !state.isDark })),
+      setJwt: (jwt) => set({ jwt }),
+      setSettings: (settings) =>
+        set((state) => ({ settings: { ...state.settings, ...settings } })),
+      setCustomOpenAISettings: (settings) =>
+        set((state) => ({
+          customOpenAISettings: { ...state.customOpenAISettings, ...settings },
+        })),
+    }),
+    { name: 'global-state' }
+  )
+)

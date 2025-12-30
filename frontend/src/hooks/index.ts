@@ -4,14 +4,23 @@ export function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>
+
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => {
+        setIsMobile(window.innerWidth < 768)
+      }, 150)
     }
 
-    checkMobile()
+    // Initial check without debounce
+    setIsMobile(window.innerWidth < 768)
     window.addEventListener('resize', checkMobile)
 
-    return () => window.removeEventListener('resize', checkMobile)
+    return () => {
+      window.removeEventListener('resize', checkMobile)
+      clearTimeout(timeoutId)
+    }
   }, [])
 
   return isMobile

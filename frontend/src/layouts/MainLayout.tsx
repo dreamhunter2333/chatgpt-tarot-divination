@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Github, LogIn, LogOut, Moon, Settings, Sparkles, Sun, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useGlobalState } from '@/store'
-import { Toaster } from '@/components/ui/sonner'
 import { useIsMobile } from '@/hooks'
 
 interface MainLayoutProps {
@@ -192,7 +191,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
                     )}
                 </div>
             </div>
-            <Toaster />
         </div>
     )
 }
