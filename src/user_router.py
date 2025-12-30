@@ -1,5 +1,5 @@
 import jwt
-import requests
+import httpx
 import datetime
 import logging
 
@@ -53,18 +53,23 @@ async def login(login_type: str, redirect_url: str):
 @router.post("/api/v1/oauth", tags=["User"])
 async def oauth(oauth_body: OauthBody):
     if oauth_body.login_type == "github" and oauth_body.code:
-        access_token = requests.post(
-            f"{GITHUB_TOEKN_URL}&code={oauth_body.code}",
-            headers={"Accept": "application/json"}
-        ).json()['access_token']
-        res = requests.get(
-            GITHUB_USER_URL,
-            headers={
-                "Authorization": f"token {access_token}",
-                "Accept": "application/json"
-            }
-        ).json()
-        user_name = res['login']
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"{GITHUB_TOEKN_URL}&code={oauth_body.code}",
+                headers={"Accept": "application/json"}
+            )
+            access_token = resp.json()['access_token']
+            
+            res = await client.get(
+                GITHUB_USER_URL,
+                headers={
+                    "Authorization": f"token {access_token}",
+                    "Accept": "application/json"
+                }
+            )
+            user_data = res.json()
+            
+        user_name = user_data['login']
         return jwt.encode(
             User(
                 login_type=oauth_body.login_type,

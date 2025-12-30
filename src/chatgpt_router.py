@@ -1,7 +1,7 @@
 import json
 from typing import Optional
 from fastapi.responses import StreamingResponse
-from openai import OpenAI
+from openai import AsyncOpenAI
 
 import logging
 
@@ -16,7 +16,7 @@ from src.user import get_user
 from src.limiter import get_real_ipaddr, check_rate_limit
 from src.divination import DivinationFactory
 
-client = OpenAI(api_key=settings.api_key, base_url=settings.api_base)
+client = AsyncOpenAI(api_key=settings.api_key, base_url=settings.api_base)
 router = APIRouter()
 _logger = logging.getLogger(__name__)
 STOP_WORDS = [
@@ -70,9 +70,9 @@ async def divination(
     api_client = client
     api_model = custom_api_model if custom_api_model else settings.model
     if custom_base_url and custom_api_key:
-        api_client = OpenAI(api_key=custom_api_key, base_url=custom_base_url)
+        api_client = AsyncOpenAI(api_key=custom_api_key, base_url=custom_base_url)
     elif custom_api_key:
-        api_client = OpenAI(api_key=custom_api_key, base_url=settings.api_base)
+        api_client = AsyncOpenAI(api_key=custom_api_key, base_url=settings.api_base)
 
     if not (settings.api_base or custom_base_url) or not (settings.api_key or custom_api_key):
         raise HTTPException(
@@ -81,7 +81,7 @@ async def divination(
         )
 
     try:
-        openai_stream = api_client.chat.completions.create(
+        openai_stream = await api_client.chat.completions.create(
             model=api_model,
             max_tokens=1000,
             temperature=0.9,
@@ -102,9 +102,9 @@ async def divination(
             detail=f"OpenAI API error: {str(e)}"
         )
 
-    def get_openai_generator():
+    async def get_openai_generator():
         try:
-            for event in openai_stream:
+            async for event in openai_stream:
                 if event.choices and event.choices[0].delta and event.choices[0].delta.content:
                     current_response = event.choices[0].delta.content
                     yield f"data: {json.dumps(current_response)}\n\n"

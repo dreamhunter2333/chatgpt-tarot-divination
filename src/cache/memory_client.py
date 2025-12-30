@@ -2,7 +2,7 @@ import time
 import logging
 import cachetools
 
-from collections import defaultdict
+
 
 from fastapi import HTTPException
 
@@ -27,7 +27,13 @@ class MemoryCacheClient(CacheClientBase):
         ttu=ttu_func,
         timer=time.time
     )
-    request_limit_map = defaultdict(list)
+    # Fix memory leak: use TTLCache instead of defaultdict
+    # TTL should be at least longer than the longest rate limit window (1 hour)
+    request_limit_map = cachetools.TTLCache(
+        maxsize=10000,
+        ttl=3600 + 60,
+        timer=time.time
+    )
 
     @classmethod
     def store_token(cls, key: str, token: str, expire_seconds: int) -> None:
@@ -54,13 +60,23 @@ class MemoryCacheClient(CacheClientBase):
     def check_rate_limit(cls, key: str, time_window_seconds: int, max_requests: int) -> None:
         cur_timestamp = int(time.time())
         try:
+            # get existing history or create new list
+            if key not in cls.request_limit_map:
+                cls.request_limit_map[key] = []
+            
+            history = cls.request_limit_map[key]
+            
             # remove expired records
-            while cls.request_limit_map[key] and cls.request_limit_map[key][0] < (cur_timestamp - time_window_seconds):
-                cls.request_limit_map[key].pop(0)
+            while history and history[0] < (cur_timestamp - time_window_seconds):
+                history.pop(0)
+            
             # add current timestamp
-            cls.request_limit_map[key].append(cur_timestamp)
-            req_count = len(cls.request_limit_map[key])
-            if req_count >= max_requests:
+            history.append(cur_timestamp)
+             # update cache to refresh TTL
+            cls.request_limit_map[key] = history
+            
+            req_count = len(history)
+            if req_count > max_requests:
                 raise HTTPException(
                     status_code=429, detail="Rate limit exceeded"
                 )
