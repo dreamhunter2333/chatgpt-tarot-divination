@@ -1,11 +1,17 @@
 import datetime
+
+from lunar_python import Solar
+
 from src.models import DivinationBody
 from .base import DivinationFactory
 
-BIRTHDAY_PROMPT = "我请求你担任中国传统的生辰八字算命的角色。" \
-    "我将会给你我的生日，请你根据我的生日推算命盘，" \
-    "分析五行属性、吉凶祸福、财运、婚姻、健康、事业等方面的情况，" \
-    "并为其提供相应的指导和建议。"
+BIRTHDAY_PROMPT = (
+    "我请求你担任中国传统的生辰八字命理师的角色。"
+    "我会给你我排好的八字命盘（生辰八字），"
+    "请你基于命盘分析五行属性、吉凶祸福、财运、婚姻、健康、事业等方面的情况，"
+    "并为我提供相应的指导和建议。"
+    "请直接使用给定的命盘进行解读，不要重新推算命盘。"
+)
 
 
 class BirthdayFactory(DivinationFactory):
@@ -19,5 +25,16 @@ class BirthdayFactory(DivinationFactory):
         birthday = datetime.datetime.strptime(
             birthday, '%Y-%m-%d %H:%M:%S'
         )
-        prompt = f"我的生日是{birthday.year}年{birthday.month}月{birthday.day}日{birthday.hour}时{birthday.minute}分{birthday.second}秒"
+        eight_char = Solar.fromYmdHms(
+            birthday.year, birthday.month, birthday.day,
+            birthday.hour, birthday.minute, birthday.second
+        ).getLunar().getEightChar()
+        prompt = (
+            f"我的公历生日是{birthday.year}年{birthday.month}月{birthday.day}日"
+            f"{birthday.hour}时{birthday.minute}分{birthday.second}秒，"
+            f"已经排好的八字命盘（四柱）是："
+            f"年柱{eight_char.getYear()}、月柱{eight_char.getMonth()}、"
+            f"日柱{eight_char.getDay()}、时柱{eight_char.getTime()}。"
+            f"请基于这个命盘解读，不要重新推算。"
+        )
         return prompt, BIRTHDAY_PROMPT
