@@ -24,7 +24,7 @@ def get_user(
             return
         payload = jwt.decode(
             jwt_token, settings.jwt_secret, algorithms=["HS256"])
-        jwt_payload = User.parse_obj(payload)
+        jwt_payload = User.model_validate(payload)
         if jwt_payload.expire_at < datetime.datetime.now().timestamp():
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
