@@ -2,12 +2,14 @@ import logging
 from typing import Tuple
 
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
+
+    model_config = SettingsConfigDict(env_file=".env")
 
     # project settings
     project_name: str = "ai-divination"
@@ -16,6 +18,12 @@ class Settings(BaseSettings):
     api_key: str = Field(default="", exclude=True)
     api_base: str = "https://api.openai.com/v1"
     model: str = "gpt-3.5-turbo"
+    # upstream api style: chat | responses
+    api_style: str = "chat"
+    # temperature used by the chat api, ignored by the responses api
+    api_temperature: float = 0.9
+    # reasoning effort for responses api, empty means provider default
+    api_reasoning_effort: str = ""
 
     # github oauth login settings
     github_client_id: str = ""
@@ -52,9 +60,6 @@ class Settings(BaseSettings):
         max_reqs, time_window_seconds = self.user_rate_limit
         # convert to human readable format
         return f"{max_reqs}req/{time_window_seconds}seconds"
-
-    class Config:
-        env_file = ".env"
 
 
 settings = Settings()

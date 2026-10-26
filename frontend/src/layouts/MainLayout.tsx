@@ -1,7 +1,8 @@
 import { ReactNode, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Github, LogIn, LogOut, Moon, Settings, Sparkles, Sun, Home } from 'lucide-react'
+import { LogIn, LogOut, Moon, Settings, Sparkles, Sun, Home } from 'lucide-react'
+import { GithubIcon } from '@/components/GithubIcon'
 import { Button } from '@/components/ui/button'
 import { useGlobalState } from '@/store'
 import { useIsMobile } from '@/hooks'
@@ -28,10 +29,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
     useEffect(() => {
         if (showAd && settings.fetched) {
             try {
-                // @ts-ignore
                 ; (window.adsbygoogle = window.adsbygoogle || []).push({})
-                    // @ts-ignore
-                    ; (window.adsbygoogle = window.adsbygoogle || []).push({})
             } catch (e) {
                 console.error('AdSense error:', e)
             }
@@ -125,7 +123,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
                                     <Button variant="ghost" size="icon" asChild>
                                         <a href="https://github.com/dreamhunter2333/chatgpt-tarot-divination" target="_blank" rel="noopener noreferrer">
-                                            <Github className="h-5 w-5" />
+                                            <GithubIcon className="h-5 w-5" />
                                         </a>
                                     </Button>
                                 </div>
