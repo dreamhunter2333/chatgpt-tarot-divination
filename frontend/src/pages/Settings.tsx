@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { DivinationCardHeader } from '@/components/DivinationCardHeader'
-import { useGlobalState } from '@/store'
+import { useGlobalState, type ApiStyle } from '@/store'
 import { Save, Settings as SettingsIcon, ExternalLink, CheckCircle2 } from 'lucide-react'
 
 export default function SettingsPage() {
@@ -16,6 +17,9 @@ export default function SettingsPage() {
     baseUrl: '',
     apiKey: '',
     model: '',
+    apiStyle: 'chat' as ApiStyle,
+    temperature: 0.9,
+    reasoningEffort: '',
   })
 
   const [loading, setLoading] = useState(false)
@@ -27,6 +31,9 @@ export default function SettingsPage() {
       baseUrl: customOpenAISettings.baseUrl || settings.default_api_base || '',
       apiKey: customOpenAISettings.apiKey || '',
       model: customOpenAISettings.model || settings.default_model || '',
+      apiStyle: customOpenAISettings.apiStyle || 'chat',
+      temperature: customOpenAISettings.temperature ?? 0.9,
+      reasoningEffort: customOpenAISettings.reasoningEffort || '',
     })
   }, [customOpenAISettings, settings])
 
@@ -155,6 +162,72 @@ export default function SettingsPage() {
               className="h-11"
             />
           </div>
+
+          <div className="space-y-2 md:space-y-3">
+            <Label htmlFor="api-style" className="text-sm md:text-base">API 接口风格</Label>
+            <Select
+              value={tempSettings.apiStyle}
+              onValueChange={(value: ApiStyle) =>
+                setTempSettings({ ...tempSettings, apiStyle: value })
+              }
+            >
+              <SelectTrigger id="api-style" className="h-11">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="chat">chat completions（/v1/chat/completions）</SelectItem>
+                <SelectItem value="responses">responses（/v1/responses）</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs md:text-sm text-muted-foreground">
+              推理类模型（如 gpt-6-luna）通常只能走 responses 接口
+            </p>
+          </div>
+
+          {tempSettings.apiStyle === 'chat' ? (
+            <div className="space-y-2 md:space-y-3">
+              <Label htmlFor="temperature" className="text-sm md:text-base">Temperature</Label>
+              <Input
+                id="temperature"
+                type="number"
+                min={0}
+                max={2}
+                step={0.1}
+                value={tempSettings.temperature}
+                onChange={(e) =>
+                  setTempSettings({ ...tempSettings, temperature: Number(e.target.value) })
+                }
+                className="h-11"
+              />
+              <p className="text-xs md:text-sm text-muted-foreground">
+                0 - 2，越高越发散；不填则默认 0.9
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2 md:space-y-3">
+              <Label htmlFor="reasoning-effort" className="text-sm md:text-base">推理强度</Label>
+              <Select
+                value={tempSettings.reasoningEffort}
+                onValueChange={(value) =>
+                  setTempSettings({ ...tempSettings, reasoningEffort: value })
+                }
+              >
+                <SelectTrigger id="reasoning-effort" className="h-11">
+                  <SelectValue placeholder="跟随模型默认" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">跟随模型默认</SelectItem>
+                  <SelectItem value="none">关闭 reasoning（最快）</SelectItem>
+                  <SelectItem value="low">低</SelectItem>
+                  <SelectItem value="medium">中</SelectItem>
+                  <SelectItem value="high">高</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs md:text-sm text-muted-foreground">
+                responses 接口不接受 temperature，改用推理强度控制输出
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </DivinationCardHeader>

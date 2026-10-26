@@ -9,6 +9,8 @@ const API_BASE = import.meta.env.VITE_API_BASE || ''
 const IS_TAURI = import.meta.env.VITE_IS_TAURI || ''
 const md = new MarkdownIt()
 
+type DivinationParams = { prompt?: string } & Record<string, unknown>
+
 export function useDivination(promptType: string) {
   const { jwt, customOpenAISettings } = useGlobalState()
   const [result, setResult] = useState('')
@@ -17,7 +19,7 @@ export function useDivination(promptType: string) {
   const [streaming, setStreaming] = useState(false)
   const [showDrawer, setShowDrawer] = useState(false)
 
-  const onSubmit = async (params: any) => {
+  const onSubmit = async (params: DivinationParams) => {
     try {
       setLoading(true)
       setResultLoading(true)
@@ -34,9 +36,16 @@ export function useDivination(promptType: string) {
       }
 
       if (customOpenAISettings.enable) {
+        const apiStyle = customOpenAISettings.apiStyle || 'chat'
         headers['x-api-key'] = customOpenAISettings.apiKey
         headers['x-api-url'] = customOpenAISettings.baseUrl
         headers['x-api-model'] = customOpenAISettings.model
+        headers['x-api-style'] = apiStyle
+        if (apiStyle === 'chat') {
+          headers['x-api-temperature'] = String(customOpenAISettings.temperature ?? 0.9)
+        } else if (customOpenAISettings.reasoningEffort) {
+          headers['x-api-reasoning-effort'] = customOpenAISettings.reasoningEffort
+        }
       } else if (IS_TAURI) {
         setResult('请在设置中配置 API BASE URL 和 API KEY')
         setResultLoading(false)
@@ -101,9 +110,9 @@ export function useDivination(promptType: string) {
           throw new Error(`占卜失败: ${err.message}`)
         },
       })
-    } catch (error: any) {
+    } catch (error) {
       console.error(error)
-      setResult(error.message || '占卜失败')
+      setResult(error instanceof Error ? error.message : '占卜失败')
       setStreaming(false)
     } finally {
       setLoading(false)

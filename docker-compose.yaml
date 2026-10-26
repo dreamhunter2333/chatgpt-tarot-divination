@@ -9,6 +9,9 @@ services:
       - api_key=sk-xxx
       # - api_base=https://api.openai.com/v1 # optional
       # - model=gpt-3.5-turbo # optional
+      # - api_style=chat # optional, chat | responses
+      # - api_temperature=0.9 # optional, chat only
+      # - api_reasoning_effort=none # optional, responses only
       # - rate_limit=10/minute # optional
       # - user_rate_limit=600/hour # optional
       - github_client_id=xxx

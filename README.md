@@ -86,8 +86,8 @@ docker-compose up -d
 ### 方式四：本地运行（开发者）
 
 **前置要求**：
-- Node.js 16+
-- Python 3.8+
+- Node.js 22+
+- Python 3.11+
 - pnpm
 
 **步骤**：
@@ -97,6 +97,10 @@ docker-compose up -d
 ```bash
 api_key=sk-xxxx                         # 必填：OpenAI API Key
 api_base=https://api.openai.com/v1      # 可选：API 地址
+model=gpt-3.5-turbo                     # 可选：模型
+api_style=chat                          # 可选：chat | responses（推理模型如 gpt-6-luna 需 responses）
+api_temperature=0.9                     # 可选：仅 chat 接口生效
+api_reasoning_effort=none               # 可选：仅 responses 接口生效，留空用模型默认
 github_client_id=xxx                     # 可选：GitHub OAuth
 github_client_secret=xxx                 # 可选：GitHub OAuth
 ad_client=ca-pub-xxx                     # 可选：广告客户端

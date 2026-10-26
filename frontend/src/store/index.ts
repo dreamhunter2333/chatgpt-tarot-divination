@@ -1,11 +1,16 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+export type ApiStyle = 'chat' | 'responses'
+
 interface CustomOpenAISettings {
   enable: boolean
   baseUrl: string
   apiKey: string
   model: string
+  apiStyle: ApiStyle
+  temperature: number
+  reasoningEffort: string
 }
 
 interface Settings {
@@ -40,7 +45,15 @@ export const useGlobalState = create<GlobalState>()(
       isDark: false,
       jwt: '',
       settings: { fetched: false, error: null },
-      customOpenAISettings: { enable: false, baseUrl: '', apiKey: '', model: '' },
+      customOpenAISettings: {
+        enable: false,
+        baseUrl: '',
+        apiKey: '',
+        model: '',
+        apiStyle: 'chat',
+        temperature: 0.9,
+        reasoningEffort: '',
+      },
       toggleDark: () => set((state) => ({ isDark: !state.isDark })),
       setJwt: (jwt) => set({ jwt }),
       setSettings: (settings) =>
