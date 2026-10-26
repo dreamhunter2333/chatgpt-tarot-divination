@@ -1,10 +1,9 @@
 import os
 import logging
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse, FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
 
 from src.limiter import get_real_ipaddr
 from src.chatgpt_router import router as chatgpt_router
@@ -32,16 +31,22 @@ async def health():
 
 
 if os.path.exists("dist"):
-    @app.get("/")
-    @app.get("/login/{path}")
-    async def read_index(request: Request):
+    dist_root = os.path.realpath("dist")
+
+    @app.get("/{path:path}")
+    async def read_index(path: str, request: Request):
+        file_path = os.path.realpath(os.path.join(dist_root, path))
+        if path and file_path.startswith(dist_root + os.sep) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        # a missing asset must not be answered with html, that only hides the error
+        if path.startswith("assets/"):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        # fall back to index.html so client side routes survive a reload
         _logger.info(f"Request from {get_real_ipaddr(request)}")
         return FileResponse(
-            "dist/index.html",
+            os.path.join(dist_root, "index.html"),
             headers={"Cache-Control": "no-cache"}
         )
-
-    app.mount("/", StaticFiles(directory="dist"), name="static")
 
 
 @app.exception_handler(Exception)
