@@ -54,7 +54,7 @@ class DivinationBody(BaseModel):
 
 
 class BirthdayBody(BaseModel):
-    birthday: str = Field(example="2000-08-17 00:00:00")
+    birthday: str = Field(json_schema_extra={"example": "2000-08-17 00:00:00"})
 
 
 class CommonResponse(BaseModel):

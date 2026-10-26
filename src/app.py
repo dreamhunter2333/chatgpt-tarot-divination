@@ -25,6 +25,12 @@ app.add_middleware(
 app.include_router(chatgpt_router)
 app.include_router(user_router)
 
+
+@app.get("/health")
+async def health():
+    return "ok"
+
+
 if os.path.exists("dist"):
     @app.get("/")
     @app.get("/login/{path}")
@@ -36,11 +42,6 @@ if os.path.exists("dist"):
         )
 
     app.mount("/", StaticFiles(directory="dist"), name="static")
-
-
-@app.get("/health")
-async def health():
-    return "ok"
 
 
 @app.exception_handler(Exception)
