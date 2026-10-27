@@ -17,7 +17,8 @@ from src.user import get_user
 from src.limiter import get_real_ipaddr, check_rate_limit
 from src.divination import DivinationFactory
 
-client = AsyncOpenAI(api_key=settings.api_key, base_url=settings.api_base)
+# openai sdk refuses an empty key, the tauri sidecar runs without one and relies on x-api-key
+client = AsyncOpenAI(api_key=settings.api_key, base_url=settings.api_base) if settings.api_key else None
 router = APIRouter()
 _logger = logging.getLogger(__name__)
 STOP_WORDS = [
