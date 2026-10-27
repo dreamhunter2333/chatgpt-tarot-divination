@@ -124,7 +124,7 @@ async def divination(
         else:
             upstream = await api_client.chat.completions.create(
                 model=api_model,
-                max_tokens=1000,
+                max_tokens=settings.api_max_output_tokens,
                 temperature=api_temperature,
                 top_p=1,
                 stream=True,
@@ -155,6 +155,8 @@ async def divination(
                 continue
             if event.choices and event.choices[0].delta and event.choices[0].delta.content:
                 yield event.choices[0].delta.content
+            if event.choices and event.choices[0].finish_reason == "length":
+                raise RuntimeError("upstream output truncated")
 
     async def get_openai_generator():
         try:
