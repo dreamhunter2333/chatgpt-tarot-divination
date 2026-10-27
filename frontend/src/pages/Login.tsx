@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useGlobalState } from '@/store'
-import { Github, LogIn, ArrowLeft } from 'lucide-react'
+import { LogIn, ArrowLeft } from 'lucide-react'
+import { GithubIcon } from '@/components/GithubIcon'
 
 const API_BASE = import.meta.env.VITE_API_BASE || ''
 
@@ -15,16 +16,6 @@ export default function LoginPage() {
   const { setJwt } = useGlobalState()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    if (login_type === 'github') {
-      const code = searchParams.get('code')
-      if (code) {
-        handleGithubCallback(code)
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [login_type, searchParams])
 
   const handleGithubCallback = async (code: string) => {
     setLoading(true)
@@ -48,13 +39,23 @@ export default function LoginPage() {
       const token = await response.json()
       setJwt(token)
       window.location.href = '/'
-    } catch (err: any) {
+    } catch (err) {
       console.error(err)
-      setError(`登录失败: ${err.message || '未知错误'}`)
+      setError(`登录失败: ${err instanceof Error ? err.message : '未知错误'}`)
     } finally {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (login_type === 'github') {
+      const code = searchParams.get('code')
+      if (code) {
+        handleGithubCallback(code)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [login_type, searchParams])
 
   const onGithubLogin = async () => {
     try {
@@ -74,9 +75,9 @@ export default function LoginPage() {
 
       const redirectUrl = await response.json()
       window.location.href = redirectUrl
-    } catch (err: any) {
+    } catch (err) {
       console.error(err)
-      setError(err.message || '登录失败')
+      setError(err instanceof Error ? err.message : '登录失败')
     } finally {
       setLoading(false)
     }
@@ -99,7 +100,7 @@ export default function LoginPage() {
             <div className="flex flex-col items-center justify-center py-12 space-y-4">
               <div className="relative">
                 <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary"></div>
-                <Github className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-7 w-7 text-primary animate-pulse" />
+                <GithubIcon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-7 w-7 text-primary animate-pulse" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">正在登录...</p>
             </div>
@@ -119,7 +120,7 @@ export default function LoginPage() {
                 className="w-full h-12 gap-3 text-base"
                 size="lg"
               >
-                <Github className="h-5 w-5" />
+                <GithubIcon className="h-5 w-5" />
                 使用 GitHub 登录
               </Button>
 

@@ -21,15 +21,17 @@ export default function HistoryPage() {
   // 获取占卜配置
   const divinationConfig = type ? getDivinationOption(type) : null
 
-  useEffect(() => {
-    loadHistory()
-  }, [type])
-
   const loadHistory = () => {
     if (type) {
       setHistory(getHistoryByType(type))
     }
   }
+
+  useEffect(() => {
+    if (type) {
+      setHistory(getHistoryByType(type))
+    }
+  }, [type])
 
   const handleDelete = (id: string) => {
     if (type) {

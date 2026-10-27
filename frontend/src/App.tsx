@@ -48,11 +48,11 @@ function App() {
           error: `Failed to fetch settings: ${response.status} ${response.statusText}`,
         })
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error(error)
       setSettings({
         fetched: true,
-        error: `Failed to fetch settings: ${error.message}`,
+        error: `Failed to fetch settings: ${error instanceof Error ? error.message : String(error)}`,
       })
     } finally {
       setLoading(false)

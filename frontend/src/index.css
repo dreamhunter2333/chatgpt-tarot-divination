@@ -1,6 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@config "../tailwind.config.js";
+
+@custom-variant dark (&:is(.dark *));
 
 @layer base {
   :root {
@@ -103,7 +105,7 @@
 
   /* Glassmorphism utility */
   .glass {
-    @apply backdrop-blur-md bg-opacity-30 border border-white/10 shadow-lg;
+    @apply backdrop-blur-md bg-white/30 border border-white/10 shadow-lg;
   }
 
   /* Text gradient utility */
