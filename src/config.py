@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     api_temperature: float = 0.9
     # reasoning effort for responses api, empty means provider default
     api_reasoning_effort: str = ""
+    # output token budget for responses api, reasoning tokens are billed against it too
+    api_max_output_tokens: int = 4000
 
     # github oauth login settings
     github_client_id: str = ""

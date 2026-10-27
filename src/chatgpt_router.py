@@ -1,4 +1,5 @@
 import json
+import math
 from typing import Optional
 from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
@@ -97,7 +98,15 @@ async def divination(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="x-api-temperature must be a number"
             )
-    api_reasoning_effort = request.headers.get("x-api-reasoning-effort") or settings.api_reasoning_effort
+    if not math.isfinite(api_temperature) or not 0 <= api_temperature <= 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="x-api-temperature must be between 0 and 2"
+        )
+    # a custom client controls its own reasoning effort, the server default must not leak into it
+    api_reasoning_effort = request.headers.get("x-api-reasoning-effort")
+    if not api_reasoning_effort and not custom_api_key:
+        api_reasoning_effort = settings.api_reasoning_effort
 
     try:
         if api_style == "responses":
@@ -106,7 +115,7 @@ async def divination(
                 "model": api_model,
                 "instructions": system_prompt,
                 "input": prompt,
-                "max_output_tokens": 1000,
+                "max_output_tokens": settings.api_max_output_tokens,
                 "stream": True,
             }
             if api_reasoning_effort:
@@ -139,6 +148,8 @@ async def divination(
             if api_style == "responses":
                 if event.type == "response.output_text.delta":
                     yield event.delta
+                elif event.type in ("response.failed", "response.incomplete"):
+                    raise RuntimeError(f"upstream response {event.type.split('.')[-1]}")
                 continue
             if event.choices and event.choices[0].delta and event.choices[0].delta.content:
                 yield event.choices[0].delta.content
@@ -149,6 +160,6 @@ async def divination(
                 yield f"data: {json.dumps(chunk)}\n\n"
         except Exception as e:
             _logger.error(f"Streaming error: {e}")
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            yield f"event: FatalError\ndata: {str(e).replace(chr(10), ' ')}\n\n"
 
     return StreamingResponse(get_openai_generator(), media_type='text/event-stream')

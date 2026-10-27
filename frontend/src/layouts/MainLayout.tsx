@@ -27,12 +27,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
     const showAd = !isMobile && settings.ad_client && settings.ad_slot
 
     useEffect(() => {
-        if (showAd && settings.fetched) {
-            try {
-                ; (window.adsbygoogle = window.adsbygoogle || []).push({})
-            } catch (e) {
-                console.error('AdSense error:', e)
-            }
+        if (!showAd || !settings.fetched) return
+        try {
+            // AdSense needs one push per rendered unit, and never twice for the same one
+            document.querySelectorAll('ins.adsbygoogle:not([data-ad-pushed])').forEach((unit) => {
+                unit.setAttribute('data-ad-pushed', '')
+                ;(window.adsbygoogle = window.adsbygoogle || []).push({})
+            })
+        } catch (e) {
+            console.error('AdSense error:', e)
         }
     }, [showAd, settings.fetched])
 
@@ -122,7 +125,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                     </Button>
 
                                     <Button variant="ghost" size="icon" asChild>
-                                        <a href="https://github.com/dreamhunter2333/chatgpt-tarot-divination" target="_blank" rel="noopener noreferrer">
+                                        <a href="https://github.com/dreamhunter2333/chatgpt-tarot-divination" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                                             <GithubIcon className="h-5 w-5" />
                                         </a>
                                     </Button>

@@ -38,8 +38,8 @@ if os.path.exists("dist"):
         file_path = os.path.realpath(os.path.join(dist_root, path))
         if path and file_path.startswith(dist_root + os.sep) and os.path.isfile(file_path):
             return FileResponse(file_path)
-        # a missing asset must not be answered with html, that only hides the error
-        if path.startswith("assets/"):
+        # api and a missing asset must not be answered with html, that only hides the error
+        if path.startswith("api/") or path.startswith("assets/"):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
         # fall back to index.html so client side routes survive a reload
         _logger.info(f"Request from {get_real_ipaddr(request)}")

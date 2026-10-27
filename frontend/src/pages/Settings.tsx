@@ -195,7 +195,10 @@ export default function SettingsPage() {
                 step={0.1}
                 value={tempSettings.temperature}
                 onChange={(e) =>
-                  setTempSettings({ ...tempSettings, temperature: Number(e.target.value) })
+                  setTempSettings({
+                    ...tempSettings,
+                    temperature: e.target.value === '' ? 0.9 : Number(e.target.value),
+                  })
                 }
                 className="h-11"
               />
