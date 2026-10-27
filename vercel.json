@@ -11,6 +11,13 @@
     ],
     "routes": [
         {
+            "src": "/assets/(.*)",
+            "headers": {
+                "Cache-Control": "public, max-age=31536000, immutable"
+            },
+            "continue": true
+        },
+        {
             "src": "/api/(.*)",
             "dest": "main.py"
         },
