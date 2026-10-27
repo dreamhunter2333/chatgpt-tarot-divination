@@ -6,7 +6,6 @@
     "main"
   ],
   "permissions": [
-    "core:default",
-    "shell:default"
+    "core:default"
   ]
 }
