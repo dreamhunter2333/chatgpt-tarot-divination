@@ -148,6 +148,8 @@ async def divination(
             if api_style == "responses":
                 if event.type == "response.output_text.delta":
                     yield event.delta
+                elif event.type == "error":
+                    raise RuntimeError(event.message or "upstream error")
                 elif event.type in ("response.failed", "response.incomplete"):
                     raise RuntimeError(f"upstream response {event.type.split('.')[-1]}")
                 continue
