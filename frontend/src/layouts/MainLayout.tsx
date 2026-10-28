@@ -116,7 +116,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                 </Link>
 
                                 {/* Desktop navigation */}
-                                <nav className="hidden md:flex items-center gap-1">
+                                <nav className="hidden xl:flex items-center gap-1">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" size="sm" className={`gap-1 ${navClass(pathname.startsWith('/divination') || pathname.startsWith('/history'))}`}>
@@ -147,7 +147,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                         <Link
                                             to="/settings"
                                             title="点击自定义 API 配置"
-                                            className={`hidden sm:inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 mr-1 text-xs font-medium whitespace-nowrap transition-opacity hover:opacity-80 ${status.tone}`}
+                                            className={`hidden lg:inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 mr-1 text-xs font-medium whitespace-nowrap transition-opacity hover:opacity-80 ${status.tone}`}
                                         >
                                             <span className="h-1.5 w-1.5 rounded-full bg-current" />
                                             {status.label}
@@ -160,7 +160,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                     <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="设置" className={navClass(pathname === '/settings')}>
                                         <Settings className="h-[18px] w-[18px]" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" asChild className="hidden md:inline-flex text-muted-foreground hover:text-foreground">
+                                    <Button variant="ghost" size="icon" asChild className="hidden xl:inline-flex text-muted-foreground hover:text-foreground">
                                         <a href="https://github.com/dreamhunter2333/chatgpt-tarot-divination" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
                                             <GithubIcon className="h-[18px] w-[18px]" />
                                         </a>
@@ -170,7 +170,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                         settings.user_name ? (
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="sm" className="gap-2 pl-1.5 pr-2.5 ml-1 rounded-full border border-border/60">
+                                                    <Button variant="ghost" size="sm" aria-label={`账户：${settings.user_name}`} className="gap-2 px-1.5 xl:pr-2.5 ml-1 rounded-full border border-border/60">
                                                         {settings.login_type === 'github' ? (
                                                             <img src={`https://github.com/${settings.user_name}.png?size=48`} alt="" className="h-6 w-6 rounded-full" />
                                                         ) : (
@@ -178,7 +178,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                                                 {settings.user_name.slice(0, 1).toUpperCase()}
                                                             </span>
                                                         )}
-                                                        <span className="hidden sm:inline max-w-[8rem] truncate">{settings.user_name}</span>
+                                                        <span className="hidden xl:inline max-w-[8rem] truncate">{settings.user_name}</span>
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-48">
@@ -191,7 +191,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         ) : (
-                                            <Button variant="outline" size="sm" onClick={() => navigate('/login')} className="gap-1.5 ml-1 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary">
+                                            <Button variant="outline" size="sm" onClick={() => navigate('/login')} aria-label="登录" className="gap-1.5 ml-1 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary">
                                                 <LogIn className="h-4 w-4" />
                                                 <span className="hidden sm:inline">登录</span>
                                             </Button>
@@ -201,7 +201,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                     {/* Mobile navigation */}
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="md:hidden text-muted-foreground hover:text-foreground" aria-label="菜单">
+                                            <Button variant="ghost" size="icon" className="xl:hidden text-muted-foreground hover:text-foreground" aria-label="菜单">
                                                 <Menu className="h-5 w-5" />
                                             </Button>
                                         </DropdownMenuTrigger>
