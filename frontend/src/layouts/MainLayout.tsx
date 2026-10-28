@@ -1,9 +1,19 @@
 import { ReactNode, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogIn, LogOut, Moon, Settings, Sparkles, Sun, Home } from 'lucide-react'
+import { ChevronDown, Info, LogIn, LogOut, Menu, Moon, Settings, Sparkles, Sun } from 'lucide-react'
 import { GithubIcon } from '@/components/GithubIcon'
 import { Button } from '@/components/ui/button'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { DIVINATION_OPTIONS } from '@/config/constants'
+import { formatRateLimit } from '@/utils/rateLimit'
 import { useGlobalState } from '@/store'
 import { useIsMobile } from '@/hooks'
 
@@ -13,8 +23,9 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
     const navigate = useNavigate()
+    const { pathname } = useLocation()
     const isMobile = useIsMobile()
-    const { isDark, toggleDark, settings, setJwt } = useGlobalState()
+    const { isDark, toggleDark, settings, setJwt, customOpenAISettings } = useGlobalState()
 
     useEffect(() => {
         if (isDark) {
@@ -43,6 +54,14 @@ export default function MainLayout({ children }: MainLayoutProps) {
         setJwt('')
         window.location.reload()
     }
+
+    const quota = settings.user_name ? settings.user_rate_limit : settings.rate_limit
+    const status = !settings.fetched ? null
+        // an empty key falls back to the server key and quota
+        : customOpenAISettings.enable && customOpenAISettings.apiKey ? { label: '自定义 API', tone: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/25' }
+        : settings.enable_rate_limit ? { label: `${settings.user_name ? '已登录' : '游客'} · ${formatRateLimit(quota)}`, tone: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/25' }
+        : null
+    const navClass = (active: boolean) => active ? 'bg-accent text-foreground' : 'text-muted-foreground hover:text-foreground'
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-primary/5 text-foreground overflow-x-hidden selection:bg-primary/30">
@@ -77,86 +96,146 @@ export default function MainLayout({ children }: MainLayoutProps) {
                             initial={{ y: -20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ duration: 0.5 }}
-                            className="backdrop-blur-md bg-card/40 border border-white/10 rounded-2xl shadow-lg p-4 mb-6 sticky top-2 z-50"
+                            className="backdrop-blur-md bg-card/75 border border-border/60 rounded-2xl shadow-sm px-2 py-2 md:px-3 mb-6 sticky top-2 z-50"
                         >
-                            <div className="flex items-center justify-between">
-                                {/* Logo Area */}
-                                <Link to="/" className="flex items-center gap-2 group">
-                                    <div className="relative p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                                        <Sparkles className="h-5 w-5 text-primary animate-pulse" />
-                                        <div className="absolute inset-0 blur-lg bg-primary/30 animate-pulse" />
+                            <div className="flex items-center gap-1">
+                                <Link to="/" className="flex items-center gap-2.5 rounded-xl px-1.5 py-1 mr-2 group" title="主页">
+                                    <div className="p-1.5 rounded-lg bg-primary/10 ring-1 ring-primary/20 group-hover:bg-primary/15 transition-colors">
+                                        <Sparkles className="h-5 w-5 text-primary" />
                                     </div>
-                                    <div>
-                                        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary via-blue-400 to-secondary bg-clip-text text-transparent font-serif tracking-tight">
-                                            AI 占卜
-                                        </h1>
-                                        <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">
-                                            探索未知 · 洞察未来
-                                        </p>
-                                    </div>
+                                    <span className="text-lg font-bold bg-gradient-to-r from-primary via-blue-400 to-secondary bg-clip-text text-transparent tracking-tight whitespace-nowrap">
+                                        AI 占卜
+                                    </span>
                                 </Link>
 
-                                {/* Actions */}
-                                <div className="flex items-center gap-1 md:gap-2">
-                                    <Button variant="ghost" size="icon" onClick={() => navigate('/')} title="主页">
-                                        <Home className="h-5 w-5" />
+                                {/* Desktop navigation */}
+                                <nav className="hidden xl:flex items-center gap-1">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="sm" className={`gap-1 ${navClass(pathname.startsWith('/divination') || pathname.startsWith('/history'))}`}>
+                                                占卜
+                                                <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="start" className="w-44">
+                                            {DIVINATION_OPTIONS.map(({ key, label, icon: Icon }) => (
+                                                <DropdownMenuItem
+                                                    key={key}
+                                                    onSelect={() => navigate(`/divination/${key}`)}
+                                                    className={pathname === `/divination/${key}` ? 'bg-accent' : ''}
+                                                >
+                                                    <Icon className="text-primary" />
+                                                    {label}
+                                                </DropdownMenuItem>
+                                            ))}
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                    <Button variant="ghost" size="sm" onClick={() => navigate('/about')} className={navClass(pathname === '/about')}>
+                                        关于
+                                    </Button>
+                                </nav>
+
+                                <div className="ml-auto flex items-center gap-1">
+                                    {status && (
+                                        <Link
+                                            to="/settings"
+                                            title="点击自定义 API 配置"
+                                            className={`hidden lg:inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 mr-1 text-xs font-medium whitespace-nowrap transition-opacity hover:opacity-80 ${status.tone}`}
+                                        >
+                                            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                            {status.label}
+                                        </Link>
+                                    )}
+
+                                    <Button variant="ghost" size="icon" onClick={toggleDark} title="切换主题" className="text-muted-foreground hover:text-foreground">
+                                        {isDark ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
+                                    </Button>
+                                    <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="设置" className={navClass(pathname === '/settings')}>
+                                        <Settings className="h-[18px] w-[18px]" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" asChild className="hidden xl:inline-flex text-muted-foreground hover:text-foreground">
+                                        <a href="https://github.com/dreamhunter2333/chatgpt-tarot-divination" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+                                            <GithubIcon className="h-[18px] w-[18px]" />
+                                        </a>
                                     </Button>
 
                                     {settings.enable_login && (
                                         settings.user_name ? (
-                                            <Button variant="ghost" size="sm" onClick={logOut} className="gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
-                                                <LogOut className="h-4 w-4" />
-                                                <span className="hidden sm:inline">登出</span>
-                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="sm" aria-label={`账户：${settings.user_name}`} className="gap-2 px-1.5 xl:pr-2.5 ml-1 rounded-full border border-border/60">
+                                                        {settings.login_type === 'github' ? (
+                                                            <img src={`https://github.com/${settings.user_name}.png?size=48`} alt="" className="h-6 w-6 rounded-full" />
+                                                        ) : (
+                                                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">
+                                                                {settings.user_name.slice(0, 1).toUpperCase()}
+                                                            </span>
+                                                        )}
+                                                        <span className="hidden xl:inline max-w-[8rem] truncate">{settings.user_name}</span>
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="w-48">
+                                                    <DropdownMenuLabel className="font-normal">
+                                                        <div className="truncate text-sm font-medium text-foreground">{settings.user_name}</div>
+                                                        <div className="text-xs text-muted-foreground">已通过 {settings.login_type === 'github' ? 'GitHub' : settings.login_type} 登录</div>
+                                                    </DropdownMenuLabel>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem onSelect={logOut} className="text-destructive focus:text-destructive">
+                                                        <LogOut />
+                                                        登出
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         ) : (
-                                            <Button variant="default" size="sm" onClick={() => navigate('/login')} className="gap-2 bg-primary/80 hover:bg-primary">
+                                            <Button variant="outline" size="sm" onClick={() => navigate('/login')} aria-label="登录" className="gap-1.5 ml-1 border-primary/40 text-primary hover:bg-primary/10 hover:text-primary">
                                                 <LogIn className="h-4 w-4" />
                                                 <span className="hidden sm:inline">登录</span>
                                             </Button>
                                         )
                                     )}
 
-                                    <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} title="设置">
-                                        <Settings className="h-5 w-5" />
-                                    </Button>
-
-                                    <Button variant="ghost" size="icon" onClick={toggleDark} title="切换主题">
-                                        {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                                    </Button>
-
-                                    <Button variant="ghost" size="icon" asChild>
-                                        <a href="https://github.com/dreamhunter2333/chatgpt-tarot-divination" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                                            <GithubIcon className="h-5 w-5" />
-                                        </a>
-                                    </Button>
+                                    {/* Mobile navigation */}
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="xl:hidden text-muted-foreground hover:text-foreground" aria-label="菜单">
+                                                <Menu className="h-5 w-5" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-52">
+                                            {status && (
+                                                <>
+                                                    <DropdownMenuItem onSelect={() => navigate('/settings')} className={`mb-1 justify-center rounded-full border text-xs font-medium ${status.tone}`}>
+                                                        {status.label}
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                </>
+                                            )}
+                                            <DropdownMenuLabel>占卜</DropdownMenuLabel>
+                                            {DIVINATION_OPTIONS.map(({ key, label, icon: Icon }) => (
+                                                <DropdownMenuItem
+                                                    key={key}
+                                                    onSelect={() => navigate(`/divination/${key}`)}
+                                                    className={pathname === `/divination/${key}` ? 'bg-accent' : ''}
+                                                >
+                                                    <Icon className="text-primary" />
+                                                    {label}
+                                                </DropdownMenuItem>
+                                            ))}
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem onSelect={() => navigate('/about')}>
+                                                <Info />
+                                                关于
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild>
+                                                <a href="https://github.com/dreamhunter2333/chatgpt-tarot-divination" target="_blank" rel="noopener noreferrer">
+                                                    <GithubIcon className="h-4 w-4" />
+                                                    GitHub
+                                                </a>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </div>
                             </div>
-
-                            {/* Status Alert for Rate Limit / Login */}
-                            <AnimatePresence>
-                                {settings.fetched && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="overflow-hidden"
-                                    >
-                                        {!settings.user_name && settings.enable_rate_limit && (
-                                            <div className="mt-2 pt-2 border-t border-border/50">
-                                                <div className="flex items-center justify-between text-xs text-amber-500 bg-amber-500/10 px-3 py-1.5 rounded-md">
-                                                    <span className="flex items-center gap-2">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                                                        游客限流模式 ({settings.rate_limit})
-                                                    </span>
-                                                    <Link to="/settings" className="hover:underline opacity-80 hover:opacity-100">
-                                                        自定义配置 &rarr;
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
                         </motion.header>
 
                         {/* Page Content */}
@@ -173,7 +252,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                         </main>
 
                         <footer className="mt-8 py-6 text-center text-sm text-muted-foreground border-t border-border/40">
-                            <p>© {new Date().getFullYear()} AI Tarot Divination. Keep an open mind.</p>
+                            <p>© {new Date().getFullYear()} AI 占卜 · 结果仅供娱乐参考，保持开放的心态</p>
                         </footer>
                     </div>
 

@@ -40,33 +40,33 @@
   }
 
   .dark {
-    /* Deep Cosmic Blue Background */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Soft night slate, less saturated than pure navy so layers stay distinguishable */
+    --background: 222 22% 12%;
+    --foreground: 210 40% 96%;
 
-    --card: 222.2 84% 8%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --card: 222 20% 16%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 20% 16%;
+    --popover-foreground: 210 40% 96%;
 
-    /* Glowing Blue Primary */
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Glowing Blue Primary, white text keeps buttons readable */
+    --primary: 217 91% 64%;
+    --primary-foreground: 0 0% 100%;
 
     /* Cyan Secondary */
-    --secondary: 190 80% 60%;
+    --secondary: 190 70% 55%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
+    --muted: 222 18% 21%;
+    --muted-foreground: 218 16% 74%;
+    --accent: 222 18% 23%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --border: 222 16% 28%;
+    --input: 222 16% 30%;
+    --ring: 217 91% 64%;
   }
 }
 

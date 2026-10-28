@@ -64,37 +64,6 @@ export default function SettingsPage() {
       icon={SettingsIcon}
     >
       <div className="w-full max-w-3xl mx-auto">
-        <div className="flex justify-end mb-4 md:mb-6">
-          <Button
-            onClick={saveSettings}
-            disabled={loading}
-            className="gap-2 w-full md:w-auto"
-          >
-            {saved ? (
-              <>
-                <CheckCircle2 className="h-4 w-4" />
-                已保存
-              </>
-            ) : loading ? (
-              '保存中...'
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                保存设置
-              </>
-            )}
-          </Button>
-        </div>
-
-        {saved && (
-          <Alert variant="success" className="animate-in slide-in-from-top duration-300 mb-4 md:mb-6">
-            <AlertDescription className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4" />
-              设置已成功保存
-            </AlertDescription>
-          </Alert>
-        )}
-
         <div className="space-y-4 md:space-y-6">
           <div className="flex items-center justify-between p-3 md:p-4 rounded-lg border bg-muted/50">
             <div className="space-y-0.5">
@@ -232,6 +201,37 @@ export default function SettingsPage() {
             </div>
           )}
         </div>
+
+        <div className="flex justify-end mt-6 md:mt-8">
+          <Button
+            onClick={saveSettings}
+            disabled={loading}
+            className="gap-2 w-full md:w-auto"
+          >
+            {saved ? (
+              <>
+                <CheckCircle2 className="h-4 w-4" />
+                已保存
+              </>
+            ) : loading ? (
+              '保存中...'
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                保存设置
+              </>
+            )}
+          </Button>
+        </div>
+
+        {saved && (
+          <Alert variant="success" className="animate-in fade-in duration-300 mt-4">
+            <AlertDescription className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4" />
+              设置已成功保存
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
     </DivinationCardHeader>
   )

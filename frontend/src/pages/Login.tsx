@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useGlobalState } from '@/store'
-import { LogIn, ArrowLeft } from 'lucide-react'
+import { LogIn } from 'lucide-react'
 import { GithubIcon } from '@/components/GithubIcon'
+import { formatRateLimit, isHigherRateLimit } from '@/utils/rateLimit'
 
 const API_BASE = import.meta.env.VITE_API_BASE || ''
 const OAUTH_STATE_KEY = 'oauth_state'
@@ -13,8 +14,9 @@ const OAUTH_STATE_KEY = 'oauth_state'
 export default function LoginPage() {
   const { login_type } = useParams()
   const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
-  const { setJwt } = useGlobalState()
+  const { setJwt, settings } = useGlobalState()
+  // only promise more quota when the server actually grants it
+  const loginRaisesQuota = !!settings.enable_rate_limit && isHigherRateLimit(settings.user_rate_limit, settings.rate_limit)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -98,18 +100,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-[60vh] px-4 animate-in fade-in duration-500">
-      <Card className="w-full max-w-md backdrop-blur-lg bg-card/50 shadow-xl border-primary/10">
-        <CardHeader className="space-y-1 md:space-y-2 text-center p-4 md:p-6">
-          <div className="flex justify-center mb-3 md:mb-4">
-            <div className="p-2 md:p-3 rounded-full bg-primary/10">
-              <LogIn className="h-6 w-6 md:h-8 md:w-8 text-primary" />
-            </div>
+    <div className="flex justify-center px-0 py-4 md:py-12 animate-in fade-in duration-500">
+      <Card className="w-full max-w-md backdrop-blur-lg bg-card/60 shadow-xl border-primary/10">
+        <CardHeader className="space-y-2 text-center p-6 pb-2">
+          <div className="mx-auto mb-2 p-3 rounded-2xl bg-primary/10 ring-1 ring-primary/20">
+            <LogIn className="h-7 w-7 text-primary" />
           </div>
-          <CardTitle className="text-xl md:text-2xl">登录账户</CardTitle>
-          <CardDescription className="text-xs md:text-sm">使用 GitHub 账户快速登录</CardDescription>
+          <CardTitle className="text-xl md:text-2xl">登录 AI 占卜</CardTitle>
+          <CardDescription className="text-sm">
+            {loginRaisesQuota ? '登录后可享受更高的使用额度' : '使用 GitHub 账号登录'}
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 p-4 md:p-6">
+        <CardContent className="space-y-5 p-6">
+          {loginRaisesQuota && (
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="rounded-xl border bg-muted/40 p-3">
+                <div className="text-xs text-muted-foreground">游客</div>
+                <div className="mt-1 text-sm font-semibold">{formatRateLimit(settings.rate_limit)}</div>
+              </div>
+              <div className="rounded-xl border border-primary/30 bg-primary/10 p-3">
+                <div className="text-xs text-primary">登录后</div>
+                <div className="mt-1 text-sm font-semibold text-primary">{formatRateLimit(settings.user_rate_limit)}</div>
+              </div>
+            </div>
+          )}
+
           {loading && (
             <div className="flex flex-col items-center justify-center py-12 space-y-4">
               <div className="relative">
@@ -137,15 +152,9 @@ export default function LoginPage() {
                 <GithubIcon className="h-5 w-5" />
                 使用 GitHub 登录
               </Button>
-
-              <Button
-                onClick={() => navigate('/')}
-                variant="outline"
-                className="w-full h-11 gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                返回主页
-              </Button>
+              <p className="text-center text-xs text-muted-foreground">
+                仅用于识别你的 GitHub 账号，不会发布任何内容
+              </p>
             </>
           )}
         </CardContent>

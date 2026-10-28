@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, LucideIcon, History } from 'lucide-react'
+import { LucideIcon, History } from 'lucide-react'
 
 interface DivinationCardHeaderProps {
   /** 页面标题 */
@@ -11,8 +11,6 @@ interface DivinationCardHeaderProps {
   description: string
   /** 卡片内容区域 */
   children: ReactNode
-  /** 返回按钮点击回调，默认返回到市场首页 */
-  onBack?: () => void
   /** 标题图标 */
   icon?: LucideIcon
   /** 占卜类型，用于历史记录导航（可选，如果不提供则不显示历史按钮） */
@@ -23,7 +21,6 @@ interface DivinationCardHeaderProps {
  * 占卜页面通用卡片头部组件
  *
  * 包含：
- * - 左上角返回按钮
  * - 居中的标题（带渐变色）
  * - 可选的标题图标
  * - 居中的描述文字
@@ -44,34 +41,14 @@ export function DivinationCardHeader({
   title,
   description,
   children,
-  onBack,
   icon: Icon,
   divinationType,
 }: DivinationCardHeaderProps) {
   const navigate = useNavigate()
 
-  const handleBack = () => {
-    if (onBack) {
-      onBack()
-    } else {
-      navigate('/')
-    }
-  }
-
   return (
     <div className="space-y-4 md:space-y-6 animate-in fade-in duration-500">
-      <Card className="backdrop-blur-lg bg-card/50 shadow-xl border-primary/10 hover:border-primary/20 transition-all relative min-h-[500px]">
-        {/* 返回按钮 */}
-        <Button
-          onClick={handleBack}
-          variant="ghost"
-          size="sm"
-          className="absolute left-2 top-2 md:left-4 md:top-4 gap-1 text-primary hover:text-primary/80 z-10"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span className="text-xs md:text-sm">返回</span>
-        </Button>
-
+      <Card className="backdrop-blur-lg bg-card/50 shadow-xl border-primary/10 hover:border-primary/20 transition-all relative">
         {/* 历史记录按钮 - 仅在提供了 divinationType 时显示 */}
         {divinationType && (
           <Button
@@ -103,7 +80,7 @@ export function DivinationCardHeader({
         </CardHeader>
 
         {/* 内容区域 */}
-        <CardContent className="pt-0 space-y-4 md:space-y-6 px-4 md:px-6 pb-4 md:pb-6 flex items-center justify-center min-h-[350px]">
+        <CardContent className="pt-0 space-y-4 md:space-y-6 px-4 md:px-6 pb-6 md:pb-8 flex items-center justify-center">
           {children}
         </CardContent>
       </Card>
