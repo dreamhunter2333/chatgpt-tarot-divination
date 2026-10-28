@@ -56,10 +56,9 @@ async def login(login_type: str, redirect_url: str, state: str = ""):
 async def oauth(oauth_body: OauthBody):
     if oauth_body.login_type == "github" and oauth_body.code:
         async with httpx.AsyncClient(timeout=10) as client:
-            # secrets go in the body, httpx logs request urls at info level
             resp = await client.post(
                 GITHUB_TOKEN_URL,
-                data={
+                params={
                     "client_id": settings.github_client_id,
                     "client_secret": settings.github_client_secret,
                     "code": oauth_body.code,

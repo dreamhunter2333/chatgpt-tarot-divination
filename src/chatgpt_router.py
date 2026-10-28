@@ -63,8 +63,8 @@ async def divination(
 
     _logger.info(
         f"Request from {real_ip}, "
-        f"user={user.user_name if user else None}, "
-        f"prompt_type={divination_body.prompt_type}"
+        f"user={user.model_dump_json(context=dict(ensure_ascii=False)) if user else None}, "
+        f"body={divination_body.model_dump_json(context=dict(ensure_ascii=False))}"
     )
     if any(w in divination_body.prompt.lower() for w in STOP_WORDS):
         raise HTTPException(
@@ -83,7 +83,8 @@ async def divination(
     custom_base_url = request.headers.get("x-api-url")
     custom_api_key = request.headers.get("x-api-key")
     custom_api_model = request.headers.get("x-api-model")
-    if custom_base_url and not is_valid_api_url(custom_base_url):
+    # the url only matters together with a custom key, otherwise the server config is used
+    if custom_api_key and custom_base_url and not is_valid_api_url(custom_base_url):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="API BASE URL is invalid"
