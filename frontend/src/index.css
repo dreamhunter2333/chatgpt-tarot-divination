@@ -41,12 +41,12 @@
 
   .dark {
     /* Soft night slate, less saturated than pure navy so layers stay distinguishable */
-    --background: 224 30% 7%;
+    --background: 222 22% 12%;
     --foreground: 210 40% 96%;
 
-    --card: 224 26% 11%;
+    --card: 222 20% 16%;
     --card-foreground: 210 40% 96%;
-    --popover: 224 26% 11%;
+    --popover: 222 20% 16%;
     --popover-foreground: 210 40% 96%;
 
     /* Glowing Blue Primary, white text keeps buttons readable */
@@ -57,15 +57,15 @@
     --secondary: 190 70% 55%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 223 22% 16%;
-    --muted-foreground: 218 16% 70%;
-    --accent: 223 22% 18%;
+    --muted: 222 18% 21%;
+    --muted-foreground: 218 16% 74%;
+    --accent: 222 18% 23%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 210 40% 98%;
-    --border: 223 20% 22%;
-    --input: 223 20% 24%;
+    --border: 222 16% 28%;
+    --input: 222 16% 30%;
     --ring: 217 91% 64%;
   }
 }

@@ -21,6 +21,7 @@ interface Settings {
   enable_login?: boolean
   enable_rate_limit?: boolean
   rate_limit?: string
+  user_rate_limit?: string
   ad_client?: string
   ad_slot?: string
   default_api_base?: string
