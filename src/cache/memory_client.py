@@ -1,3 +1,4 @@
+import bisect
 import time
 import logging
 import threading
@@ -61,14 +62,14 @@ class MemoryCacheClient(CacheClientBase):
 
     @classmethod
     def check_rate_limit(cls, key: str, time_window_seconds: int, max_requests: int) -> None:
-        cur_timestamp = int(time.time())
         try:
             with cls.rate_limit_lock:
+                # read the clock under the lock so history stays sorted
+                cur_timestamp = int(time.time())
                 # get existing history or create new list
                 history = cls.request_limit_map.get(key, [])
-                # remove expired records
-                while history and history[0] < (cur_timestamp - time_window_seconds):
-                    history.pop(0)
+                # remove expired records in one slice, history can be long for a flooding client
+                del history[:bisect.bisect_left(history, cur_timestamp - time_window_seconds)]
                 # add current timestamp
                 history.append(cur_timestamp)
                 # update cache to refresh TTL
