@@ -7,8 +7,8 @@ import { useGlobalState } from '@/store'
 import { LogIn } from 'lucide-react'
 import { GithubIcon } from '@/components/GithubIcon'
 import { formatRateLimit, isHigherRateLimit } from '@/utils/rateLimit'
+import { API_BASE } from '@/config/api'
 
-const API_BASE = import.meta.env.VITE_API_BASE || ''
 const OAUTH_STATE_KEY = 'oauth_state'
 
 export default function LoginPage() {

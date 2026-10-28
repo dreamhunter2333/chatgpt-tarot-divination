@@ -46,7 +46,9 @@ def start_input_thread(server: uvicorn.Server):
 
 
 if __name__ == "__main__":
+    # the tauri app passes a free port picked at launch, 12333 keeps standalone runs working
+    port = int(sys.argv[sys.argv.index("--port") + 1]) if "--port" in sys.argv else 12333
     # cap the wait for in-flight streams, otherwise quitting mid divination keeps the sidecar alive
-    server = uvicorn.Server(uvicorn.Config(app, port=12333, timeout_graceful_shutdown=3))
+    server = uvicorn.Server(uvicorn.Config(app, port=port, timeout_graceful_shutdown=3))
     start_input_thread(server)
     server.run()

@@ -7,6 +7,7 @@ interface ImportMetaEnv {
 
 interface Window {
   adsbygoogle?: unknown[]
+  __API_BASE__?: string
 }
 
 interface ImportMeta {

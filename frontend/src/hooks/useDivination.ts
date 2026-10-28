@@ -4,8 +4,8 @@ import MarkdownIt from 'markdown-it'
 import { useGlobalState } from '@/store'
 import { saveHistory } from '@/utils/divinationHistory'
 import { getDivinationOption } from '@/config/constants'
+import { API_BASE } from '@/config/api'
 
-const API_BASE = import.meta.env.VITE_API_BASE || ''
 const IS_TAURI = import.meta.env.VITE_IS_TAURI || ''
 const md = new MarkdownIt()
 
