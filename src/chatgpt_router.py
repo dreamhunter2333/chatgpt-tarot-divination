@@ -1,8 +1,11 @@
+import asyncio
+import ipaddress
 import json
 import math
 from typing import Optional
+from urllib.parse import urlparse
 from fastapi.responses import StreamingResponse
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, DefaultAsyncHttpxClient
 
 import logging
 
@@ -17,15 +20,46 @@ from src.user import get_user
 from src.limiter import get_real_ipaddr, check_rate_limit
 from src.divination import DivinationFactory
 
+# one connection pool shared by every client, per request clients would otherwise leak theirs
+http_client = DefaultAsyncHttpxClient()
 # openai sdk refuses an empty key, the tauri sidecar runs without one and relies on x-api-key
-client = AsyncOpenAI(api_key=settings.api_key, base_url=settings.api_base) if settings.api_key else None
+client = AsyncOpenAI(
+    api_key=settings.api_key, base_url=settings.api_base, http_client=http_client
+) if settings.api_key else None
 router = APIRouter()
 _logger = logging.getLogger(__name__)
+# prompt injection phrases, everyday words like "开始" or "help" are left out on purpose
 STOP_WORDS = [
-    "忽略", "ignore", "指令", "命令", "command", "help", "帮助", "之前",
-    "幫助", "現在", "開始", "开始", "start", "restart", "重新开始", "重新開始",
-    "遵守", "遵循", "遵从", "遵從"
+    "忽略", "ignore", "指令", "命令", "command", "遵守", "遵循", "遵从", "遵從"
 ]
+
+FAKE_IP_NETWORK = ipaddress.ip_network("198.18.0.0/15")
+
+
+def user_texts(body: DivinationBody) -> list[str]:
+    texts = [body.prompt]
+    if body.fate:
+        texts += [body.fate.name1, body.fate.name2]
+    if body.new_name:
+        texts += [body.new_name.surname, body.new_name.sex, body.new_name.new_name_prompt]
+    return texts
+
+
+async def is_allowed_api_url(url: str) -> bool:
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.hostname:
+        return False
+    if settings.allow_private_api_url:
+        return True
+    try:
+        infos = await asyncio.get_running_loop().getaddrinfo(parsed.hostname, parsed.port or 443)
+    except OSError:
+        return False
+    # fake-ip proxies such as clash resolve every domain into the 198.18.0.0/15 benchmark range
+    return all(
+        ip.is_global or ip in FAKE_IP_NETWORK
+        for ip in (ipaddress.ip_address(info[4][0]) for info in infos)
+    )
 
 
 @router.post("/api/divination")
@@ -40,19 +74,19 @@ async def divination(
     if settings.enable_rate_limit:
         if not user:
             max_reqs, time_window_seconds = settings.rate_limit
-            check_rate_limit(f"{settings.project_name}:{real_ip}", time_window_seconds, max_reqs)
+            await check_rate_limit(f"{settings.project_name}:{real_ip}", time_window_seconds, max_reqs)
         else:
             max_reqs, time_window_seconds = settings.user_rate_limit
-            check_rate_limit(
+            await check_rate_limit(
                 f"{settings.project_name}:{user.login_type}:{user.user_name}", time_window_seconds, max_reqs
             )
 
     _logger.info(
         f"Request from {real_ip}, "
-        f"user={user.model_dump_json(context=dict(ensure_ascii=False)) if user else None}, "
-        f"body={divination_body.model_dump_json(context=dict(ensure_ascii=False))}"
+        f"user={user.user_name if user else None}, "
+        f"prompt_type={divination_body.prompt_type}"
     )
-    if any(w in divination_body.prompt.lower() for w in STOP_WORDS):
+    if any(w in text.lower() for text in user_texts(divination_body) for w in STOP_WORDS):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Prompt contains stop words"
@@ -69,12 +103,18 @@ async def divination(
     custom_base_url = request.headers.get("x-api-url")
     custom_api_key = request.headers.get("x-api-key")
     custom_api_model = request.headers.get("x-api-model")
+    if custom_base_url and not await is_allowed_api_url(custom_base_url):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="API BASE URL not allowed"
+        )
     api_client = client
-    api_model = custom_api_model if custom_api_model else settings.model
-    if custom_base_url and custom_api_key:
-        api_client = AsyncOpenAI(api_key=custom_api_key, base_url=custom_base_url)
-    elif custom_api_key:
-        api_client = AsyncOpenAI(api_key=custom_api_key, base_url=settings.api_base)
+    # model and style only follow the client when it pays with its own key
+    api_model = custom_api_model if custom_api_key and custom_api_model else settings.model
+    if custom_api_key:
+        api_client = AsyncOpenAI(
+            api_key=custom_api_key, base_url=custom_base_url or settings.api_base, http_client=http_client
+        )
 
     if not (settings.api_base or custom_base_url) or not (settings.api_key or custom_api_key):
         raise HTTPException(
@@ -83,7 +123,7 @@ async def divination(
         )
 
     # custom clients default to the chat api, most third party providers don't support responses
-    api_style = request.headers.get("x-api-style") or ("chat" if custom_api_key else settings.api_style)
+    api_style = (request.headers.get("x-api-style") or "chat") if custom_api_key else settings.api_style
     if api_style not in ("chat", "responses"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -105,9 +145,9 @@ async def divination(
             detail="x-api-temperature must be between 0 and 2"
         )
     # a custom client controls its own reasoning effort, the server default must not leak into it
-    api_reasoning_effort = request.headers.get("x-api-reasoning-effort")
-    if not api_reasoning_effort and not custom_api_key:
-        api_reasoning_effort = settings.api_reasoning_effort
+    api_reasoning_effort = (
+        request.headers.get("x-api-reasoning-effort") if custom_api_key else settings.api_reasoning_effort
+    )
 
     try:
         if api_style == "responses":

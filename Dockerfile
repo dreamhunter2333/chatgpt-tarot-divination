@@ -5,5 +5,7 @@ RUN python -m pip install --no-cache-dir --upgrade "pip==26.2.2" "setuptools==84
     && python -m pip install --no-cache-dir -r requirements.txt
 COPY . /app
 WORKDIR /app
+RUN useradd --system --no-create-home app
+USER app
 EXPOSE 8000
 ENTRYPOINT [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000" ]

@@ -8,6 +8,7 @@ import { LogIn, ArrowLeft } from 'lucide-react'
 import { GithubIcon } from '@/components/GithubIcon'
 
 const API_BASE = import.meta.env.VITE_API_BASE || ''
+const OAUTH_STATE_KEY = 'oauth_state'
 
 export default function LoginPage() {
   const { login_type } = useParams()
@@ -17,7 +18,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleGithubCallback = async (code: string) => {
+  const handleGithubCallback = async (code: string, state: string | null) => {
+    if (!state || state !== sessionStorage.getItem(OAUTH_STATE_KEY)) {
+      setError('登录失败: state 校验失败，请重新登录')
+      return
+    }
     setLoading(true)
     try {
       const response = await fetch(`${API_BASE}/api/v1/oauth`, {
@@ -37,6 +42,7 @@ export default function LoginPage() {
       }
 
       const token = await response.json()
+      sessionStorage.removeItem(OAUTH_STATE_KEY)
       setJwt(token)
       window.location.href = '/'
     } catch (err) {
@@ -51,7 +57,7 @@ export default function LoginPage() {
     if (login_type === 'github') {
       const code = searchParams.get('code')
       if (code) {
-        handleGithubCallback(code)
+        handleGithubCallback(code, searchParams.get('state'))
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -61,8 +67,16 @@ export default function LoginPage() {
     try {
       setLoading(true)
       setError('')
+      // randomUUID needs a secure context, self hosted instances are often plain http
+      const state = Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('')
+      sessionStorage.setItem(OAUTH_STATE_KEY, state)
+      const query = new URLSearchParams({
+        login_type: 'github',
+        redirect_url: `${window.location.origin}/login/github`,
+        state,
+      })
       const response = await fetch(
-        `${API_BASE}/api/v1/login?login_type=github&redirect_url=${window.location.origin}/login/github`,
+        `${API_BASE}/api/v1/login?${query}`,
         {
           method: 'GET',
         }

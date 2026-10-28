@@ -1,6 +1,16 @@
+import datetime
+from typing import Optional
+
+from fastapi import HTTPException
 
 from src.models import DivinationBody
-from typing import Optional
+
+
+def parse_birthday(value: Optional[str]) -> datetime.datetime:
+    try:
+        return datetime.datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="生日格式错误")
 
 
 class MetaDivination(type):

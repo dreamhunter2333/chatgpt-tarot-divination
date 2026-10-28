@@ -1,5 +1,6 @@
 import logging
-from typing import Tuple
+import os
+from typing import List, Tuple
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -30,7 +31,8 @@ class Settings(BaseSettings):
     # github oauth login settings
     github_client_id: str = ""
     github_client_secret: str = Field(default="", exclude=True)
-    jwt_secret: str = Field(default="secret", exclude=True)
+    # empty disables login, tokens signed with a guessable default would bypass the rate limit
+    jwt_secret: str = Field(default="", exclude=True)
 
     # google ads settings
     ad_client: str = ""
@@ -46,6 +48,12 @@ class Settings(BaseSettings):
     redis_url: str = Field(default="", exclude=True, alias="KV_URL")
     upstash_api_url: str = Field(default="", alias="KV_REST_API_URL")
     upstash_api_token: str = Field(default="", exclude=True, alias="KV_REST_API_TOKEN")
+
+    # only trust x-real-ip when a proxy overwrites it, vercel always does
+    trust_proxy_headers: bool = bool(os.getenv("VERCEL"))
+    # allow x-api-url to point at loopback / private networks, e.g. a local llm
+    allow_private_api_url: bool = False
+    cors_origins: List[str] = ["*"]
 
     # rate limit settings
     enable_rate_limit: bool = True

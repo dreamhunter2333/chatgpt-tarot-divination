@@ -5,8 +5,14 @@ import sys
 import threading
 import uvicorn
 
-from src.app import app
-from src.config import settings
+# only the tauri webview may call the sidecar, local llms are a valid custom api url on desktop
+os.environ.setdefault(
+    "cors_origins", '["tauri://localhost", "http://tauri.localhost", "https://tauri.localhost"]'
+)
+os.environ.setdefault("allow_private_api_url", "true")
+
+from src.app import app  # noqa: E402
+from src.config import settings  # noqa: E402
 
 logging.basicConfig(
     format="%(asctime)s: %(levelname)s: %(name)s: %(message)s",

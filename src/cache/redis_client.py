@@ -1,4 +1,5 @@
 import time
+import uuid
 from fastapi import HTTPException
 import redis
 import logging
@@ -21,7 +22,9 @@ class RedisCacheClient(CacheClientBase):
     @classmethod
     def init_redis(cls):
         if cls.redis_client is None:
-            cls.redis_client = redis.Redis.from_url(settings.redis_url, decode_responses=True)
+            cls.redis_client = redis.Redis.from_url(
+                settings.redis_url, decode_responses=True, socket_timeout=5, socket_connect_timeout=5
+            )
 
     @classmethod
     def store_token(cls, key: str, token: str, expire_seconds: int) -> None:
@@ -51,7 +54,8 @@ class RedisCacheClient(CacheClientBase):
         try:
             cls.init_redis()
             cls.redis_client.zremrangebyscore(key, "-inf", cur_timestamp - time_window_seconds)
-            cls.redis_client.zadd(key, {cur_timestamp: cur_timestamp})
+            # members must be unique, otherwise requests within the same second count once
+            cls.redis_client.zadd(key, {f"{cur_timestamp}:{uuid.uuid4().hex}": cur_timestamp})
             cls.redis_client.expire(key, time_window_seconds)
             req_count = cls.redis_client.zcard(key)
             if req_count > max_requests:

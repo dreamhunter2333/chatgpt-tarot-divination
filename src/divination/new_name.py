@@ -1,10 +1,8 @@
-import datetime
-
 from fastapi import HTTPException
 from lunar_python import Solar
 
 from src.models import DivinationBody
-from .base import DivinationFactory
+from .base import DivinationFactory, parse_birthday
 
 NEW_NAME_PROMPT = (
     "我请求你担任起名师的角色，"
@@ -27,9 +25,7 @@ class NewNameFactory(DivinationFactory):
         ]) or len(divination_body.new_name.new_name_prompt) > 20):
             raise HTTPException(status_code=400, detail="起名参数错误")
 
-        birthday = datetime.datetime.strptime(
-                    divination_body.new_name.birthday, '%Y-%m-%d %H:%M:%S'
-                )
+        birthday = parse_birthday(divination_body.new_name.birthday)
         eight_char = Solar.fromYmdHms(
             birthday.year, birthday.month, birthday.day,
             birthday.hour, birthday.minute, birthday.second

@@ -4,6 +4,7 @@ import datetime
 import logging
 
 from typing import Optional
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -14,12 +15,8 @@ from src.user import get_user
 router = APIRouter()
 _logger = logging.getLogger(__name__)
 
-GITHUB_URL = "https://github.com/login/oauth/authorize?" \
-    f"client_id={settings.github_client_id}" \
-    "&scope=user:email"
-GITHUB_TOEKN_URL = "https://github.com/login/oauth/access_token" \
-    f"?client_id={settings.github_client_id}" \
-    f"&client_secret={settings.github_client_secret}"
+GITHUB_URL = "https://github.com/login/oauth/authorize"
+GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
 GITHUB_USER_URL = "https://api.github.com/user"
 
 
@@ -32,7 +29,7 @@ async def info(user: Optional[User] = Depends(get_user)):
         ad_slot=settings.ad_slot,
         rate_limit=settings.get_human_rate_limit(),
         user_rate_limit=settings.get_human_user_rate_limit(),
-        enable_login=bool(settings.github_client_id),
+        enable_login=bool(settings.github_client_id and settings.jwt_secret),
         enable_rate_limit=settings.enable_rate_limit,
         default_api_base=settings.default_api_base,
         default_model=settings.default_model,
@@ -41,25 +38,40 @@ async def info(user: Optional[User] = Depends(get_user)):
 
 
 @router.get("/api/v1/login", tags=["User"])
-async def login(login_type: str, redirect_url: str):
+async def login(login_type: str, redirect_url: str, state: str = ""):
     if login_type == "github":
-        return f"{GITHUB_URL}&redirect_uri={redirect_url}"
+        return f"{GITHUB_URL}?" + urlencode({
+            "client_id": settings.github_client_id,
+            "scope": "user:email",
+            "redirect_uri": redirect_url,
+            "state": state,
+        })
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content="Login type not supported"
+        detail="Login type not supported"
     )
 
 
 @router.post("/api/v1/oauth", tags=["User"])
 async def oauth(oauth_body: OauthBody):
+    if not settings.jwt_secret:
+        raise HTTPException(status_code=400, detail="Login is not configured")
     if oauth_body.login_type == "github" and oauth_body.code:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=10) as client:
+            # secrets go in the body, httpx logs request urls at info level
             resp = await client.post(
-                f"{GITHUB_TOEKN_URL}&code={oauth_body.code}",
+                GITHUB_TOKEN_URL,
+                data={
+                    "client_id": settings.github_client_id,
+                    "client_secret": settings.github_client_secret,
+                    "code": oauth_body.code,
+                },
                 headers={"Accept": "application/json"}
             )
-            access_token = resp.json()['access_token']
-            
+            access_token = resp.json().get("access_token")
+            if not access_token:
+                raise HTTPException(status_code=400, detail="GitHub OAuth failed")
+
             res = await client.get(
                 GITHUB_USER_URL,
                 headers={
@@ -68,7 +80,7 @@ async def oauth(oauth_body: OauthBody):
                 }
             )
             user_data = res.json()
-            
+
         user_name = user_data['login']
         return jwt.encode(
             User(

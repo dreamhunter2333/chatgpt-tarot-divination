@@ -12,11 +12,13 @@ services:
       # - api_style=chat # optional, chat | responses
       # - api_temperature=0.9 # optional, chat only
       # - api_reasoning_effort=none # optional, responses only, omit for model default
-      # - api_max_output_tokens=4000 # optional, responses only
-      # - rate_limit=10/minute # optional
-      # - user_rate_limit=600/hour # optional
+      # - api_max_output_tokens=4000 # optional, output token budget
+      # - rate_limit=[60,3600] # optional, [max requests, window seconds]
+      # - user_rate_limit=[600,3600] # optional, [max requests, window seconds]
+      # - trust_proxy_headers=true # optional, only behind a proxy that overwrites x-real-ip
+      # - allow_private_api_url=true # optional, allow custom api url on private networks
       - github_client_id=xxx
       - github_client_secret=xxx
-      - jwt_secret=secret
+      - jwt_secret=change-me # required for login, e.g. openssl rand -hex 32
       - ad_client=ca-pub-xxx
       - ad_slot=123
