@@ -19,11 +19,18 @@ _logger.info(f"settings: {settings.model_dump_json()}")
 def stdin_loop():
     _logger.info("[sidecar] Waiting for commands...")
     while True:
-        user_input = sys.stdin.readline().strip()
+        line = sys.stdin.readline()
+        # EOF means the tauri app is gone (crash or force quit), exit instead of spinning
+        if not line:
+            _logger.info("[sidecar] stdin closed, shutting down.")
+            os.kill(os.getpid(), signal.SIGINT)
+            return
+        user_input = line.strip()
         match user_input:
             case "sidecar shutdown":
                 _logger.info("[sidecar] Received 'sidecar shutdown' command.")
                 os.kill(os.getpid(), signal.SIGINT)
+                return
             case _:
                 _logger.info(
                     f"[sidecar] Invalid command [{user_input}]. Try again."
