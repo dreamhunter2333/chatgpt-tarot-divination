@@ -17,8 +17,8 @@ import FatePage from '@/pages/divination/FatePage'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Sparkles } from 'lucide-react'
 import MainLayout from '@/layouts/MainLayout'
+import { API_BASE } from '@/config/api'
 
-const API_BASE = import.meta.env.VITE_API_BASE || ''
 
 function App() {
   const {

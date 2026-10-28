@@ -16,3 +16,5 @@ tauri-build = { version = "2.7.4", features = [] }
 tauri = { version = "2.12.5", features = [] }
 tauri-plugin-shell = "2.5.0"
 tauri-plugin-single-instance = "2.5.5"
+tauri-plugin-log = "2.10.1"
+log = "0.4"
