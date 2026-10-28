@@ -1,9 +1,7 @@
-import datetime
-
 from lunar_python import Solar
 
 from src.models import DivinationBody
-from .base import DivinationFactory
+from .base import DivinationFactory, parse_birthday
 
 BIRTHDAY_PROMPT = (
     "我请求你担任中国传统的生辰八字命理师的角色。"
@@ -22,9 +20,7 @@ class BirthdayFactory(DivinationFactory):
         return self.internal_build_prompt(divination_body.birthday)
 
     def internal_build_prompt(self, birthday: str) -> tuple[str, str]:
-        birthday = datetime.datetime.strptime(
-            birthday, '%Y-%m-%d %H:%M:%S'
-        )
+        birthday = parse_birthday(birthday)
         eight_char = Solar.fromYmdHms(
             birthday.year, birthday.month, birthday.day,
             birthday.hour, birthday.minute, birthday.second

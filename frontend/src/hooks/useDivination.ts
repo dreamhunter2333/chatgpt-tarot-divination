@@ -59,6 +59,8 @@ export function useDivination(promptType: string) {
           prompt_type: promptType,
         }),
         headers,
+        // reconnecting on tab switch would rerun the divination and duplicate the result
+        openWhenHidden: true,
         async onopen(response) {
           if (response.ok && response.headers.get('content-type') === EventStreamContentType) {
             setStreaming(true)

@@ -1,8 +1,9 @@
 import json
 import math
 from typing import Optional
+from urllib.parse import urlparse
 from fastapi.responses import StreamingResponse
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, DefaultAsyncHttpxClient
 
 import logging
 
@@ -17,8 +18,12 @@ from src.user import get_user
 from src.limiter import get_real_ipaddr, check_rate_limit
 from src.divination import DivinationFactory
 
+# one connection pool shared by every client, per request clients would otherwise leak theirs
+http_client = DefaultAsyncHttpxClient()
 # openai sdk refuses an empty key, the tauri sidecar runs without one and relies on x-api-key
-client = AsyncOpenAI(api_key=settings.api_key, base_url=settings.api_base) if settings.api_key else None
+client = AsyncOpenAI(
+    api_key=settings.api_key, base_url=settings.api_base, http_client=http_client
+) if settings.api_key else None
 router = APIRouter()
 _logger = logging.getLogger(__name__)
 STOP_WORDS = [
@@ -26,6 +31,15 @@ STOP_WORDS = [
     "幫助", "現在", "開始", "开始", "start", "restart", "重新开始", "重新開始",
     "遵守", "遵循", "遵从", "遵從"
 ]
+
+
+def is_valid_api_url(url: str) -> bool:
+    try:
+        parsed = urlparse(url)
+        parsed.port  # raises on a malformed port
+    except ValueError:
+        return False
+    return parsed.scheme in ("http", "https") and bool(parsed.hostname)
 
 
 @router.post("/api/divination")
@@ -40,10 +54,10 @@ async def divination(
     if settings.enable_rate_limit:
         if not user:
             max_reqs, time_window_seconds = settings.rate_limit
-            check_rate_limit(f"{settings.project_name}:{real_ip}", time_window_seconds, max_reqs)
+            await check_rate_limit(f"{settings.project_name}:{real_ip}", time_window_seconds, max_reqs)
         else:
             max_reqs, time_window_seconds = settings.user_rate_limit
-            check_rate_limit(
+            await check_rate_limit(
                 f"{settings.project_name}:{user.login_type}:{user.user_name}", time_window_seconds, max_reqs
             )
 
@@ -69,12 +83,19 @@ async def divination(
     custom_base_url = request.headers.get("x-api-url")
     custom_api_key = request.headers.get("x-api-key")
     custom_api_model = request.headers.get("x-api-model")
+    # the url only matters together with a custom key, otherwise the server config is used
+    if custom_api_key and custom_base_url and not is_valid_api_url(custom_base_url):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="API BASE URL is invalid"
+        )
     api_client = client
-    api_model = custom_api_model if custom_api_model else settings.model
-    if custom_base_url and custom_api_key:
-        api_client = AsyncOpenAI(api_key=custom_api_key, base_url=custom_base_url)
-    elif custom_api_key:
-        api_client = AsyncOpenAI(api_key=custom_api_key, base_url=settings.api_base)
+    # model and style only follow the client when it pays with its own key
+    api_model = custom_api_model if custom_api_key and custom_api_model else settings.model
+    if custom_api_key:
+        api_client = AsyncOpenAI(
+            api_key=custom_api_key, base_url=custom_base_url or settings.api_base, http_client=http_client
+        )
 
     if not (settings.api_base or custom_base_url) or not (settings.api_key or custom_api_key):
         raise HTTPException(
@@ -83,7 +104,7 @@ async def divination(
         )
 
     # custom clients default to the chat api, most third party providers don't support responses
-    api_style = request.headers.get("x-api-style") or ("chat" if custom_api_key else settings.api_style)
+    api_style = (request.headers.get("x-api-style") or "chat") if custom_api_key else settings.api_style
     if api_style not in ("chat", "responses"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -105,9 +126,9 @@ async def divination(
             detail="x-api-temperature must be between 0 and 2"
         )
     # a custom client controls its own reasoning effort, the server default must not leak into it
-    api_reasoning_effort = request.headers.get("x-api-reasoning-effort")
-    if not api_reasoning_effort and not custom_api_key:
-        api_reasoning_effort = settings.api_reasoning_effort
+    api_reasoning_effort = (
+        request.headers.get("x-api-reasoning-effort") if custom_api_key else settings.api_reasoning_effort
+    )
 
     try:
         if api_style == "responses":

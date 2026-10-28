@@ -2,3 +2,6 @@
 venv/
 frontend/
 worker/
+.env
+src-tauri/
+assets/

@@ -12,9 +12,9 @@ services:
       # - api_style=chat # optional, chat | responses
       # - api_temperature=0.9 # optional, chat only
       # - api_reasoning_effort=none # optional, responses only, omit for model default
-      # - api_max_output_tokens=4000 # optional, responses only
-      # - rate_limit=10/minute # optional
-      # - user_rate_limit=600/hour # optional
+      # - api_max_output_tokens=4000 # optional, output token budget
+      # - rate_limit=[60,3600] # optional, [max requests, window seconds]
+      # - user_rate_limit=[600,3600] # optional, [max requests, window seconds]
       - github_client_id=xxx
       - github_client_secret=xxx
       - jwt_secret=secret
