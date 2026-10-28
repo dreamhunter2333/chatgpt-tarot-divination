@@ -64,8 +64,8 @@ class MemoryCacheClient(CacheClientBase):
     def check_rate_limit(cls, key: str, time_window_seconds: int, max_requests: int) -> None:
         try:
             with cls.rate_limit_lock:
-                # read the clock under the lock so history stays sorted
-                cur_timestamp = int(time.time())
+                # read a monotonic clock under the lock so history stays sorted for bisect
+                cur_timestamp = int(time.monotonic())
                 # get existing history or create new list
                 history = cls.request_limit_map.get(key, [])
                 # remove expired records in one slice, history can be long for a flooding client
