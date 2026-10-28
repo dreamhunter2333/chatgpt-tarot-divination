@@ -36,6 +36,7 @@
    - `api_key`：必填，你的 OpenAI API Key
    - `api_base`：可选，API 地址（默认为 OpenAI 官方地址）
    - 其他可选参数：`model`、`github_client_id`、`github_client_secret` 等
+   - 启用 GitHub 登录时还必须设置 `jwt_secret`（自行生成随机值，如 `openssl rand -hex 32`），否则登录不会开启
 
 3. 部署完成后，Vercel 会自动分配一个访问域名
 
@@ -72,7 +73,7 @@ services:
       # - allow_private_api_url=true       # 可选：允许自定义 API 地址指向内网/本机
       - github_client_id=xxx               # 可选：GitHub OAuth
       - github_client_secret=xxx           # 可选：GitHub OAuth
-      - jwt_secret=change-me               # 启用登录时必填：随机字符串，如 openssl rand -hex 32
+      - jwt_secret=                        # 启用登录时必填：自行生成随机值，如 openssl rand -hex 32
       - ad_client=ca-pub-xxx               # 可选：广告客户端
       - ad_slot=123                        # 可选：广告位
 ```
@@ -106,7 +107,7 @@ api_reasoning_effort=                   # 可选：仅 responses 接口生效，
 api_max_output_tokens=4000              # 可选：输出 token 上限，responses 接口含推理 token
 github_client_id=xxx                     # 可选：GitHub OAuth
 github_client_secret=xxx                 # 可选：GitHub OAuth
-jwt_secret=xxx                           # 启用登录时必填：随机字符串
+jwt_secret=                              # 启用登录时必填：自行生成随机值，如 openssl rand -hex 32
 ad_client=ca-pub-xxx                     # 可选：广告客户端
 ad_slot=123                              # 可选：广告位
 ```

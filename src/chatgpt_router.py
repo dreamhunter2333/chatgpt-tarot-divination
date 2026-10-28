@@ -20,8 +20,9 @@ from src.user import get_user
 from src.limiter import get_real_ipaddr, check_rate_limit
 from src.divination import DivinationFactory
 
-# one connection pool shared by every client, per request clients would otherwise leak theirs
-http_client = DefaultAsyncHttpxClient()
+# one connection pool shared by every client, per request clients would otherwise leak theirs;
+# redirects are off so a vetted custom api url can't bounce the request into a private network
+http_client = DefaultAsyncHttpxClient(follow_redirects=False)
 # openai sdk refuses an empty key, the tauri sidecar runs without one and relies on x-api-key
 client = AsyncOpenAI(
     api_key=settings.api_key, base_url=settings.api_base, http_client=http_client
@@ -46,13 +47,17 @@ def user_texts(body: DivinationBody) -> list[str]:
 
 
 async def is_allowed_api_url(url: str) -> bool:
-    parsed = urlparse(url)
-    if parsed.scheme not in ("http", "https") or not parsed.hostname:
+    try:
+        parsed = urlparse(url)
+        hostname, port = parsed.hostname, parsed.port
+    except ValueError:
+        return False
+    if parsed.scheme not in ("http", "https") or not hostname:
         return False
     if settings.allow_private_api_url:
         return True
     try:
-        infos = await asyncio.get_running_loop().getaddrinfo(parsed.hostname, parsed.port or 443)
+        infos = await asyncio.get_running_loop().getaddrinfo(hostname, port or 443)
     except OSError:
         return False
     # fake-ip proxies such as clash resolve every domain into the 198.18.0.0/15 benchmark range
