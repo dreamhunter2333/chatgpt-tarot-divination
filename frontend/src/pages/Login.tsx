@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useGlobalState } from '@/store'
 import { LogIn } from 'lucide-react'
 import { GithubIcon } from '@/components/GithubIcon'
-import { formatRateLimit } from '@/utils/rateLimit'
+import { formatRateLimit, isHigherRateLimit } from '@/utils/rateLimit'
 
 const API_BASE = import.meta.env.VITE_API_BASE || ''
 const OAUTH_STATE_KEY = 'oauth_state'
@@ -15,6 +15,8 @@ export default function LoginPage() {
   const { login_type } = useParams()
   const [searchParams] = useSearchParams()
   const { setJwt, settings } = useGlobalState()
+  // only promise more quota when the server actually grants it
+  const loginRaisesQuota = !!settings.enable_rate_limit && isHigherRateLimit(settings.user_rate_limit, settings.rate_limit)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -105,10 +107,12 @@ export default function LoginPage() {
             <LogIn className="h-7 w-7 text-primary" />
           </div>
           <CardTitle className="text-xl md:text-2xl">登录 AI 占卜</CardTitle>
-          <CardDescription className="text-sm">登录后可享受更高的使用额度</CardDescription>
+          <CardDescription className="text-sm">
+            {loginRaisesQuota ? '登录后可享受更高的使用额度' : '使用 GitHub 账号登录'}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5 p-6">
-          {settings.enable_rate_limit && settings.user_rate_limit && (
+          {loginRaisesQuota && (
             <div className="grid grid-cols-2 gap-3 text-center">
               <div className="rounded-xl border bg-muted/40 p-3">
                 <div className="text-xs text-muted-foreground">游客</div>

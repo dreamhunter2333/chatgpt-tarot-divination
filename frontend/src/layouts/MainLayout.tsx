@@ -57,7 +57,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
     const quota = settings.user_name ? settings.user_rate_limit : settings.rate_limit
     const status = !settings.fetched ? null
-        : customOpenAISettings.enable ? { label: '自定义 API', tone: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/25' }
+        // an empty key falls back to the server key and quota
+        : customOpenAISettings.enable && customOpenAISettings.apiKey ? { label: '自定义 API', tone: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/25' }
         : settings.enable_rate_limit ? { label: `${settings.user_name ? '已登录' : '游客'} · ${formatRateLimit(quota)}`, tone: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/25' }
         : null
     const navClass = (active: boolean) => active ? 'bg-accent text-foreground' : 'text-muted-foreground hover:text-foreground'
