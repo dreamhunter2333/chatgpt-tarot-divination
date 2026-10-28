@@ -13,17 +13,9 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { DIVINATION_OPTIONS } from '@/config/constants'
+import { formatRateLimit } from '@/utils/rateLimit'
 import { useGlobalState } from '@/store'
 import { useIsMobile } from '@/hooks'
-
-// the api reports limits as "60req/3600seconds"
-function formatRateLimit(rateLimit?: string) {
-    const match = rateLimit?.match(/^(\d+)req\/(\d+)seconds$/)
-    if (!match) return rateLimit
-    const [, count, seconds] = match.map(Number)
-    const [size, unit] = seconds % 3600 === 0 ? [seconds / 3600, '小时'] : seconds % 60 === 0 ? [seconds / 60, '分钟'] : [seconds, '秒']
-    return `每${size === 1 ? '' : ` ${size} `}${unit} ${count} 次`
-}
 
 interface MainLayoutProps {
     children: ReactNode
@@ -182,7 +174,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-48">
-                                                    <DropdownMenuLabel>已通过 {settings.login_type === 'github' ? 'GitHub' : settings.login_type} 登录</DropdownMenuLabel>
+                                                    <DropdownMenuLabel className="font-normal">
+                                                        <div className="truncate text-sm font-medium text-foreground">{settings.user_name}</div>
+                                                        <div className="text-xs text-muted-foreground">已通过 {settings.login_type === 'github' ? 'GitHub' : settings.login_type} 登录</div>
+                                                    </DropdownMenuLabel>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem onSelect={logOut} className="text-destructive focus:text-destructive">
                                                         <LogOut />
@@ -256,7 +251,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                         </main>
 
                         <footer className="mt-8 py-6 text-center text-sm text-muted-foreground border-t border-border/40">
-                            <p>© {new Date().getFullYear()} AI Tarot Divination. Keep an open mind.</p>
+                            <p>© {new Date().getFullYear()} AI 占卜 · 结果仅供娱乐参考，保持开放的心态</p>
                         </footer>
                     </div>
 
