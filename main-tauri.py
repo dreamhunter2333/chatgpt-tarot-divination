@@ -46,6 +46,7 @@ def start_input_thread(server: uvicorn.Server):
 
 
 if __name__ == "__main__":
-    server = uvicorn.Server(uvicorn.Config(app, port=12333))
+    # cap the wait for in-flight streams, otherwise quitting mid divination keeps the sidecar alive
+    server = uvicorn.Server(uvicorn.Config(app, port=12333, timeout_graceful_shutdown=3))
     start_input_thread(server)
     server.run()
