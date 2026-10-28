@@ -60,7 +60,7 @@ export function DivinationCardHeader({
 
   return (
     <div className="space-y-4 md:space-y-6 animate-in fade-in duration-500">
-      <Card className="backdrop-blur-lg bg-card/50 shadow-xl border-primary/10 hover:border-primary/20 transition-all relative min-h-[500px]">
+      <Card className="backdrop-blur-lg bg-card/50 shadow-xl border-primary/10 hover:border-primary/20 transition-all relative">
         {/* 返回按钮 */}
         <Button
           onClick={handleBack}
@@ -103,7 +103,7 @@ export function DivinationCardHeader({
         </CardHeader>
 
         {/* 内容区域 */}
-        <CardContent className="pt-0 space-y-4 md:space-y-6 px-4 md:px-6 pb-4 md:pb-6 flex items-center justify-center min-h-[350px]">
+        <CardContent className="pt-0 space-y-4 md:space-y-6 px-4 md:px-6 pb-6 md:pb-8 flex items-center justify-center">
           {children}
         </CardContent>
       </Card>

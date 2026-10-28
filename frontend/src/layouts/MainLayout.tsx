@@ -7,6 +7,15 @@ import { Button } from '@/components/ui/button'
 import { useGlobalState } from '@/store'
 import { useIsMobile } from '@/hooks'
 
+// the api reports limits as "60req/3600seconds"
+function formatRateLimit(rateLimit?: string) {
+    const match = rateLimit?.match(/^(\d+)req\/(\d+)seconds$/)
+    if (!match) return rateLimit
+    const [, count, seconds] = match.map(Number)
+    const [size, unit] = seconds % 3600 === 0 ? [seconds / 3600, '小时'] : seconds % 60 === 0 ? [seconds / 60, '分钟'] : [seconds, '秒']
+    return `每${size === 1 ? '' : ` ${size} `}${unit} ${count} 次`
+}
+
 interface MainLayoutProps {
     children: ReactNode
 }
@@ -87,7 +96,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                         <div className="absolute inset-0 blur-lg bg-primary/30 animate-pulse" />
                                     </div>
                                     <div>
-                                        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary via-blue-400 to-secondary bg-clip-text text-transparent font-serif tracking-tight">
+                                        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary via-blue-400 to-secondary bg-clip-text text-transparent font-serif tracking-tight whitespace-nowrap">
                                             AI 占卜
                                         </h1>
                                         <p className="text-[10px] md:text-xs text-muted-foreground hidden sm:block">
@@ -146,7 +155,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                                                 <div className="flex items-center justify-between text-xs text-amber-500 bg-amber-500/10 px-3 py-1.5 rounded-md">
                                                     <span className="flex items-center gap-2">
                                                         <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                                                        游客限流模式 ({settings.rate_limit})
+                                                        游客限流模式（{formatRateLimit(settings.rate_limit)}）
                                                     </span>
                                                     <Link to="/settings" className="hover:underline opacity-80 hover:opacity-100">
                                                         自定义配置 &rarr;
