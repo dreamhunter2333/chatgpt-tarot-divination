@@ -1,6 +1,4 @@
 import logging
-import os
-import signal
 import sys
 import threading
 import uvicorn
@@ -16,23 +14,31 @@ _logger = logging.getLogger(__name__)
 _logger.info(f"settings: {settings.model_dump_json()}")
 
 
-def stdin_loop():
+def stdin_loop(server: uvicorn.Server):
     _logger.info("[sidecar] Waiting for commands...")
     while True:
-        user_input = sys.stdin.readline().strip()
+        line = sys.stdin.readline()
+        # EOF means the tauri app is gone (crash or force quit), exit instead of spinning
+        if not line:
+            _logger.info("[sidecar] stdin closed, shutting down.")
+            # uvicorn honours this flag even before startup completes, unlike a signal
+            server.should_exit = True
+            return
+        user_input = line.strip()
         match user_input:
             case "sidecar shutdown":
                 _logger.info("[sidecar] Received 'sidecar shutdown' command.")
-                os.kill(os.getpid(), signal.SIGINT)
+                server.should_exit = True
+                return
             case _:
                 _logger.info(
                     f"[sidecar] Invalid command [{user_input}]. Try again."
                 )
 
 
-def start_input_thread():
+def start_input_thread(server: uvicorn.Server):
     try:
-        input_thread = threading.Thread(target=stdin_loop)
+        input_thread = threading.Thread(target=stdin_loop, args=(server,))
         input_thread.daemon = True  # so it exits when the main program exits
         input_thread.start()
     except Exception as e:
@@ -40,5 +46,7 @@ def start_input_thread():
 
 
 if __name__ == "__main__":
-    start_input_thread()
-    uvicorn.run(app, port=12333)
+    # cap the wait for in-flight streams, otherwise quitting mid divination keeps the sidecar alive
+    server = uvicorn.Server(uvicorn.Config(app, port=12333, timeout_graceful_shutdown=3))
+    start_input_thread(server)
+    server.run()
