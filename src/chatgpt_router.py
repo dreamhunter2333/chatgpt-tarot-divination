@@ -1,5 +1,3 @@
-import asyncio
-import ipaddress
 import json
 import math
 from typing import Optional
@@ -20,9 +18,8 @@ from src.user import get_user
 from src.limiter import get_real_ipaddr, check_rate_limit
 from src.divination import DivinationFactory
 
-# one connection pool shared by every client, per request clients would otherwise leak theirs;
-# redirects are off so a vetted custom api url can't bounce the request into a private network
-http_client = DefaultAsyncHttpxClient(follow_redirects=False)
+# one connection pool shared by every client, per request clients would otherwise leak theirs
+http_client = DefaultAsyncHttpxClient()
 # openai sdk refuses an empty key, the tauri sidecar runs without one and relies on x-api-key
 client = AsyncOpenAI(
     api_key=settings.api_key, base_url=settings.api_base, http_client=http_client
@@ -34,8 +31,6 @@ STOP_WORDS = [
     "忽略", "ignore", "指令", "命令", "command", "遵守", "遵循", "遵从", "遵從"
 ]
 
-FAKE_IP_NETWORK = ipaddress.ip_network("198.18.0.0/15")
-
 
 def user_texts(body: DivinationBody) -> list[str]:
     texts = [body.prompt]
@@ -46,25 +41,13 @@ def user_texts(body: DivinationBody) -> list[str]:
     return texts
 
 
-async def is_allowed_api_url(url: str) -> bool:
+def is_valid_api_url(url: str) -> bool:
     try:
         parsed = urlparse(url)
-        hostname, port = parsed.hostname, parsed.port
+        parsed.port  # raises on a malformed port
     except ValueError:
         return False
-    if parsed.scheme not in ("http", "https") or not hostname:
-        return False
-    if settings.allow_private_api_url:
-        return True
-    try:
-        infos = await asyncio.get_running_loop().getaddrinfo(hostname, port or 443)
-    except OSError:
-        return False
-    # fake-ip proxies such as clash resolve every domain into the 198.18.0.0/15 benchmark range
-    return all(
-        ip.is_global or ip in FAKE_IP_NETWORK
-        for ip in (ipaddress.ip_address(info[4][0]) for info in infos)
-    )
+    return parsed.scheme in ("http", "https") and bool(parsed.hostname)
 
 
 @router.post("/api/divination")
@@ -108,10 +91,10 @@ async def divination(
     custom_base_url = request.headers.get("x-api-url")
     custom_api_key = request.headers.get("x-api-key")
     custom_api_model = request.headers.get("x-api-model")
-    if custom_base_url and not await is_allowed_api_url(custom_base_url):
+    if custom_base_url and not is_valid_api_url(custom_base_url):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="API BASE URL not allowed"
+            detail="API BASE URL is invalid"
         )
     api_client = client
     # model and style only follow the client when it pays with its own key

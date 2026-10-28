@@ -29,7 +29,7 @@ async def info(user: Optional[User] = Depends(get_user)):
         ad_slot=settings.ad_slot,
         rate_limit=settings.get_human_rate_limit(),
         user_rate_limit=settings.get_human_user_rate_limit(),
-        enable_login=bool(settings.github_client_id and settings.jwt_secret),
+        enable_login=bool(settings.github_client_id),
         enable_rate_limit=settings.enable_rate_limit,
         default_api_base=settings.default_api_base,
         default_model=settings.default_model,
@@ -54,8 +54,6 @@ async def login(login_type: str, redirect_url: str, state: str = ""):
 
 @router.post("/api/v1/oauth", tags=["User"])
 async def oauth(oauth_body: OauthBody):
-    if not settings.jwt_secret:
-        raise HTTPException(status_code=400, detail="Login is not configured")
     if oauth_body.login_type == "github" and oauth_body.code:
         async with httpx.AsyncClient(timeout=10) as client:
             # secrets go in the body, httpx logs request urls at info level

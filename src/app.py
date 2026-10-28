@@ -5,7 +5,6 @@ from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse, FileResponse, JSONResponse
 
-from src.config import settings
 from src.limiter import get_real_ipaddr
 from src.chatgpt_router import router as chatgpt_router
 from src.user_router import router as user_router
@@ -16,7 +15,7 @@ _logger = logging.getLogger(__name__)
 app = FastAPI(title="Chatgpt Divination API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=["*"],
     # auth rides on the bearer header, no cookies are involved
     allow_credentials=False,
     allow_methods=["*"],
@@ -65,10 +64,10 @@ async def exception_handler(request: Request, exc: Exception):
         }
     )
 
-    # 不向客户端暴露内部错误细节
+    # 直接返回原始错误信息
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
-            "error": "Internal Server Error"
+            "error": str(exc)
         },
     )

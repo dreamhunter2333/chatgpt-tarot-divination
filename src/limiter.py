@@ -4,13 +4,12 @@ from fastapi import Request
 from starlette.concurrency import run_in_threadpool
 
 from .cache import CacheClientFactory
-from .config import settings
 
 _logger = logging.getLogger(__name__)
 
 
 def get_real_ipaddr(request: Request) -> str:
-    if settings.trust_proxy_headers and "x-real-ip" in request.headers:
+    if "x-real-ip" in request.headers:
         return request.headers["x-real-ip"]
     if not request.client or not request.client.host:
         return "127.0.0.1"
