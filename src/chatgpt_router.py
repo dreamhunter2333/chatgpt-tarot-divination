@@ -26,19 +26,11 @@ client = AsyncOpenAI(
 ) if settings.api_key else None
 router = APIRouter()
 _logger = logging.getLogger(__name__)
-# prompt injection phrases, everyday words like "开始" or "help" are left out on purpose
 STOP_WORDS = [
-    "忽略", "ignore", "指令", "命令", "command", "遵守", "遵循", "遵从", "遵從"
+    "忽略", "ignore", "指令", "命令", "command", "help", "帮助", "之前",
+    "幫助", "現在", "開始", "开始", "start", "restart", "重新开始", "重新開始",
+    "遵守", "遵循", "遵从", "遵從"
 ]
-
-
-def user_texts(body: DivinationBody) -> list[str]:
-    texts = [body.prompt]
-    if body.fate:
-        texts += [body.fate.name1, body.fate.name2]
-    if body.new_name:
-        texts += [body.new_name.surname, body.new_name.sex, body.new_name.new_name_prompt]
-    return texts
 
 
 def is_valid_api_url(url: str) -> bool:
@@ -74,7 +66,7 @@ async def divination(
         f"user={user.user_name if user else None}, "
         f"prompt_type={divination_body.prompt_type}"
     )
-    if any(w in text.lower() for text in user_texts(divination_body) for w in STOP_WORDS):
+    if any(w in divination_body.prompt.lower() for w in STOP_WORDS):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Prompt contains stop words"

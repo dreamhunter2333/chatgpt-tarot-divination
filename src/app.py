@@ -16,8 +16,7 @@ app = FastAPI(title="Chatgpt Divination API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    # auth rides on the bearer header, no cookies are involved
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
